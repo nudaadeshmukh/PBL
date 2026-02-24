@@ -1,0 +1,399 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    overflow-x: hidden;
+}
+
+/* Glowing Button Animation */
+.glowing-button {
+    position: relative;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    color: white;
+    background: linear-gradient(to right, #2563eb, #9333ea);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.7);
+    }
+}
+
+.glowing-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+}
+
+.glowing-button:active {
+    transform: scale(0.95);
+}
+
+.glowing-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: scale(1);
+}
+
+/* Page Transitions */
+.page {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Feature Cards */
+.feature-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.feature-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-4px);
+}
+
+/* Step Cards */
+.step-card {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(147, 51, 234, 0.2));
+    backdrop-filter: blur(10px);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Menu Items */
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateX(4px);
+}
+
+.menu-item.active {
+    background: linear-gradient(to right, #2563eb, #9333ea);
+    color: white;
+}
+
+/* Dashboard Cards */
+.stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Block Cards */
+.block-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    margin-bottom: 1rem;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.block-header {
+    background: linear-gradient(to right, rgba(37, 99, 235, 0.2), rgba(147, 51, 234, 0.2));
+    padding: 1.5rem;
+}
+
+/* Accordion */
+.accordion-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+}
+
+.accordion-trigger {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+}
+
+.accordion-trigger:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.accordion-content {
+    padding: 0 1rem 1rem 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    display: none;
+}
+
+.accordion-content.open {
+    display: block;
+    animation: slideDown 0.3s ease-in-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+    }
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+th {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+}
+
+td {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Spinner Animation */
+.spinner {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Loading Dots */
+.loading-dots {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.loading-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    background: #60a5fa;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out;
+}
+
+.loading-dot:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.loading-dot:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+
+/* Scroll Animations */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Toast Notification */
+#toast {
+    animation: slideInRight 0.3s ease-in-out;
+}
+
+#toast.show {
+    display: block !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .menu-item span {
+        display: none;
+    }
+    
+    aside {
+        width: 80px !important;
+    }
+    
+    .ml-64 {
+        margin-left: 80px !important;
+    }
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Select Dropdown Styling */
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+select option {
+    background: #1e293b;
+    color: white;
+}
+
+
+/* Back to Home Button */
+
+.back-btn {
+    color: white;
+    font-size: 14px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+/* Navbar Links */
+
+.nav-link {
+    color: rgba(255,255,255,0.8);
+    transition: 0.3s;
+    font-size: 15px;
+}
+
+.nav-link:hover {
+    color: white;
+}
+
+nav .flex {
+    gap: 25px;   /* Adjust this */
+}
+
+/* Login Welcome Text */
+
+.login-welcome h2 {
+    letter-spacing: 1px;
+}
+
+.login-welcome p {
+    font-style: italic;
+}
