@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @SpringBootApplication is a convenience annotation that combines:
  * - @Configuration: Marks this class as a source of bean definitions.
  * - @EnableAutoConfiguration: Enables Spring Boot's auto-configuration (e.g. DataSource, JPA, Web).
- * - @ComponentScan: Scans the package com.example.sable and all sub-packages for
+ * - @ComponentScan: Scans the package com.example.SABLE and all sub-packages for
  *   @Component, @Service, @Repository, @Controller, etc., and registers them as beans.
  *
  * Component scanning ensures that TransactionController, TransactionService,
