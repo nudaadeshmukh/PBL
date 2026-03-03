@@ -327,195 +327,324 @@
             <main class="p-8">
                 <!-- Dashboard Home -->
                 <div id="dashboard" class="dashboard-page">
-                    <div class="space-y-8">
-                        <div>
-                            <h1 class="text-3xl font-bold text-white mb-2">Dashboard</h1>
-                            <p class="text-white/70">Monitor your blockchain banking system</p>
-                        </div>
-                        <div id="dashboard-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-                        <div id="recent-blocks" class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20"></div>
-                    </div>
-                </div>
+    <div id="stats-grid" class="grid md:grid-cols-4 gap-6 mb-8"></div>
+
+    <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+        <h3 class="text-white text-xl font-semibold mb-4">Recent Blocks</h3>
+        <div id="recent-blocks"></div>
+    </div>
+
+    <div class="text-sm text-white/70 mt-4">
+        Last Backup: <span id="last-backup"></span>
+    </div>
+</div>
 
                 <!-- Add Transaction -->
                 <div id="add-transaction" class="dashboard-page hidden">
-                    <div class="max-w-4xl space-y-8">
-                        <div>
-                            <h1 class="text-3xl font-bold text-white mb-2">Add Transaction</h1>
-                            <p class="text-white/70">Create a new transaction and add it to the blockchain</p>
-                        </div>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                                <h3 class="text-white text-xl font-semibold mb-6">Transaction Details</h3>
-                                <form onsubmit="handleAddTransaction(event)" class="space-y-6">
-                                    <div>
-                                        <label class="text-white">Sender Account ID</label>
-                                        <input type="text" id="tx-sender" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="ACC-12345">
-                                    </div>
-                                    <div>
-                                        <label class="text-white">Receiver Account ID</label>
-                                        <input type="text" id="tx-receiver" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="ACC-67890">
-                                    </div>
-                                    <div>
-                                        <label class="text-white">Amount ($)</label>
-                                        <input type="number" step="0.01" id="tx-amount" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="100.00">
-                                    </div>
-                                    <div>
-                                        <label class="text-white">Description</label>
-                                        <textarea id="tx-description" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 min-h-[100px]" placeholder="Payment for services..."></textarea>
-                                    </div>
-                                    <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 text-sm text-blue-300">
-                                        <strong>Timestamp:</strong> Auto-generated on submission
-                                    </div>
-                                    <button type="submit" class="glowing-button w-full">Submit Transaction</button>
-                                </form>
-                            </div>
-                            <div id="transaction-result" class="bg-white/5 backdrop-blur-md border border-white/10 border-dashed rounded-xl flex items-center justify-center min-h-[400px]">
-                                <div class="text-center text-white/50">
-                                    <svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
-                                    <p>Transaction result will appear here</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <div class="max-w-4xl space-y-8">
+
+    <div>
+      <h1 class="section-title">Add Transaction</h1>
+      <p class="section-subtitle">
+        Create a new transaction and add it to the blockchain
+      </p>
+    </div>
+
+    <div class="grid-2">
+
+      <!-- FORM -->
+      <div class="card">
+        <h3 class="card-title">Transaction Details</h3>
+
+        <form id="transaction-form" class="space-y-6">
+
+          <div>
+            <label>Sender Account ID</label>
+            <input type="text" id="sender" placeholder="ACC-12345" required>
+          </div>
+
+          <div>
+            <label>Receiver Account ID</label>
+            <input type="text" id="receiver" placeholder="ACC-67890" required>
+          </div>
+
+          <div>
+            <label>Amount ($)</label>
+            <input type="number" id="amount" step="0.01" placeholder="100.00" required>
+          </div>
+
+          <div>
+            <label>Description</label>
+            <textarea id="description" placeholder="Payment for services..." required></textarea>
+          </div>
+
+          <div class="info-box">
+            <strong>Timestamp:</strong> Auto-generated on submission
+          </div>
+
+          <button type="submit" class="glowing-button w-full">
+            Submit Transaction
+          </button>
+
+        </form>
+      </div>
+
+      <!-- RESULT -->
+      <div id="transaction-result" class="card result-card empty">
+        <div class="empty-state">
+          <div class="hash-icon">#</div>
+          <p>Transaction result will appear here</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 
                 <!-- Blockchain Ledger -->
                 <div id="blockchain" class="dashboard-page hidden">
-                    <div class="max-w-4xl space-y-8">
-                        <div>
-                            <h1 class="text-3xl font-bold text-white mb-2">Blockchain Ledger</h1>
-                            <p class="text-white/70">View all blocks and transactions in the chain</p>
-                        </div>
-                        <div id="blockchain-blocks"></div>
-                    </div>
-                </div>
+
+  <div class="ledger-container">
+
+    <div>
+      <h1 class="section-title">Blockchain Ledger</h1>
+      <p class="section-subtitle">
+        View all blocks and transactions in the chain
+      </p>
+    </div>
+
+    <div id="ledger-blocks" class="ledger-blocks"></div>
+
+  </div>
+
+</div>
 
                 <!-- Verify Blockchain -->
                 <div id="verify" class="dashboard-page hidden">
-                    <div class="max-w-3xl mx-auto space-y-8">
-                        <div>
-                            <h1 class="text-3xl font-bold text-white mb-2">Verify Blockchain</h1>
-                            <p class="text-white/70">Check the integrity of the entire blockchain</p>
-                        </div>
-                        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-white font-semibold text-xl">Blockchain Verification</h3>
-                                    <p class="text-white/70 text-sm mt-1">Verify all blocks and check for tampering</p>
-                                </div>
-                            </div>
-                            <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-sm text-blue-300 mb-6">
-                                <strong>What this does:</strong>
-                                <ul class="mt-2 space-y-1 ml-4 list-disc">
-                                    <li>Verifies hash integrity of each block</li>
-                                    <li>Checks chain linkage between blocks</li>
-                                    <li>Detects any unauthorized modifications</li>
-                                    <li>Validates cryptographic signatures</li>
-                                </ul>
-                            </div>
-                            <div class="flex justify-center">
-                                <button onclick="handleVerifyBlockchain()" class="glowing-button px-12 py-4 text-lg">
-                                    🔒 Verify Blockchain
-                                </button>
-                            </div>
-                        </div>
-                        <div id="verification-result"></div>
-                    </div>
-                </div>
+
+  <div class="verify-container">
+
+    <div>
+      <h1 class="section-title">Verify Blockchain</h1>
+      <p class="section-subtitle">Check the integrity of the entire blockchain</p>
+    </div>
+
+    <!-- Action Card -->
+    <div class="card">
+      <div class="verify-header">
+        <div class="shield-icon">🛡</div>
+        <div>
+          <h3>Blockchain Verification</h3>
+          <p>Verify all blocks and check for tampering</p>
+        </div>
+      </div>
+
+      <div class="verify-info">
+        <ul>
+          <li>✔ Verifies hash integrity of each block</li>
+          <li>✔ Checks chain linkage between blocks</li>
+          <li>✔ Detects unauthorized modifications</li>
+          <li>✔ Validates SHA-256 cryptographic integrity</li>
+        </ul>
+      </div>
+
+      <div class="center">
+        <button onclick="handleVerifyBlockchain()" class="glowing-button big-btn">
+          Verify Blockchain
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="verify-loading" class="card hidden loading-card">
+      <div class="spinner"></div>
+      <p>Verifying blockchain integrity...</p>
+    </div>
+
+    <!-- Result -->
+    <div id="verify-result"></div>
+
+  </div>
+</div>
 
                 <!-- Audit Reports -->
-                <div id="audit" class="dashboard-page hidden">
-                    <div class="space-y-8">
-                        <div>
-                            <h1 class="text-3xl font-bold text-white mb-2">Audit & Reports</h1>
-                            <p class="text-white/70">Filter and export transaction history</p>
-                        </div>
-                        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                            <h3 class="text-white font-semibold text-xl mb-6">Filter Transactions</h3>
-                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                                <div>
-                                    <label class="text-white text-sm">Date From</label>
-                                    <input type="date" id="filter-date-from" class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
-                                </div>
-                                <div>
-                                    <label class="text-white text-sm">Date To</label>
-                                    <input type="date" id="filter-date-to" class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
-                                </div>
-                                <div>
-                                    <label class="text-white text-sm">Account ID</label>
-                                    <input type="text" id="filter-account" class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="ACC-12345">
-                                </div>
-                                <div>
-                                    <label class="text-white text-sm">Min Amount ($)</label>
-                                    <input type="number" step="0.01" id="filter-min" class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="0.00">
-                                </div>
-                                <div>
-                                    <label class="text-white text-sm">Max Amount ($)</label>
-                                    <input type="number" step="0.01" id="filter-max" class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="10000.00">
-                                </div>
-                                <div class="flex items-end">
-                                    <button onclick="generateAuditReport()" class="glowing-button w-full">
-                                        📥 Generate Report
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="text-sm text-white/70" id="filter-count"></div>
-                        </div>
-                        <div id="audit-table" class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20"></div>
-                    </div>
-                </div>
+               <div id="audit" class="dashboard-page hidden">
+
+  <div class="audit-container">
+
+    <div>
+      <h1 class="section-title">Audit & Reports</h1>
+      <p class="section-subtitle">Filter and export transaction history</p>
+    </div>
+
+    <!-- FILTER CARD -->
+    <div class="card">
+      <h3 class="card-title">Filter Transactions</h3>
+
+      <div class="audit-grid">
+
+        <div>
+          <label>Date From</label>
+          <input type="date" id="filter-dateFrom">
+        </div>
+
+        <div>
+          <label>Date To</label>
+          <input type="date" id="filter-dateTo">
+        </div>
+
+        <div>
+          <label>Account ID</label>
+          <input type="text" id="filter-account" placeholder="ACC-12345">
+        </div>
+
+        <div>
+          <label>Min Amount ($)</label>
+          <input type="number" id="filter-minAmount" step="0.01">
+        </div>
+
+        <div>
+          <label>Max Amount ($)</label>
+          <input type="number" id="filter-maxAmount" step="0.01">
+        </div>
+
+        <div class="btn-wrapper">
+          <button onclick="generateAuditReport()" class="glowing-button">
+            Download CSV
+          </button>
+        </div>
+
+      </div>
+
+      <div class="audit-count">
+        Showing <span id="record-count">0</span> records
+      </div>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="card">
+      <h3 class="card-title">Transaction History</h3>
+
+      <div class="table-wrapper">
+        <table id="audit-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Sender</th>
+              <th>Receiver</th>
+              <th>Amount</th>
+              <th>Block</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div id="no-records" class="no-records hidden">
+        No transactions found matching your filters
+      </div>
+    </div>
+
+    <!-- SUMMARY CARD -->
+    <div id="summary-card" class="card hidden">
+      <h3 class="card-title">Summary Statistics</h3>
+
+      <div class="summary-grid">
+        <div>
+          <small>Total Transactions</small>
+          <h2 id="sum-total"></h2>
+        </div>
+        <div>
+          <small>Total Volume</small>
+          <h2 id="sum-volume" class="green"></h2>
+        </div>
+        <div>
+          <small>Average Amount</small>
+          <h2 id="sum-average" class="blue"></h2>
+        </div>
+        <div>
+          <small>Blocks Involved</small>
+          <h2 id="sum-blocks" class="purple"></h2>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
                 <!-- Profile -->
                 <div id="profile" class="dashboard-page hidden">
-                    <div class="max-w-4xl space-y-8">
-                        <div>
-                            <h1 class="text-3xl font-bold text-white mb-2">Profile</h1>
-                            <p class="text-white/70">Manage your account settings</p>
-                        </div>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                                <div class="flex items-center gap-4 mb-6">
-                                    <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold" id="profile-avatar"></div>
-                                    <div>
-                                        <h3 class="text-white font-semibold text-xl" id="profile-name"></h3>
-                                        <p class="text-white/70 text-sm" id="profile-role"></p>
-                                    </div>
-                                </div>
-                                <div id="profile-info" class="space-y-3"></div>
-                            </div>
-                            <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                                <div class="flex items-center gap-3 mb-6">
-                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                    </div>
-                                    <h3 class="text-white font-semibold text-xl">Change Password</h3>
-                                </div>
-                                <form onsubmit="handleChangePassword(event)" class="space-y-4">
-                                    <div>
-                                        <label class="text-white text-sm">Current Password</label>
-                                        <input type="password" id="current-password" class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="••••••••">
-                                    </div>
-                                    <div>
-                                        <label class="text-white text-sm">New Password</label>
-                                        <input type="password" id="new-password" class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="••••••••">
-                                    </div>
-                                    <div>
-                                        <label class="text-white text-sm">Confirm New Password</label>
-                                        <input type="password" id="confirm-new-password" class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="••••••••">
-                                    </div>
-                                    <button type="submit" class="glowing-button w-full">Update Password</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
+
+  <div class="profile-container">
+
+    <div>
+      <h1 class="section-title">Profile</h1>
+      <p class="section-subtitle">Manage your account settings</p>
     </div>
+
+    <div class="profile-grid">
+
+      <!-- Profile Info -->
+      <div class="card">
+        <div class="profile-header">
+          <div id="profile-avatar" class="avatar"></div>
+          <div>
+            <h3 id="profile-name"></h3>
+            <p id="profile-role" class="role-text"></p>
+          </div>
+        </div>
+
+        <div class="profile-info">
+          <p><strong>Email:</strong> <span id="profile-email"></span></p>
+          <p><strong>Employee ID:</strong> <span id="profile-empid"></span></p>
+          <p><strong>Last Login:</strong> <span id="profile-lastlogin"></span></p>
+        </div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="card">
+        <h3>Change Password</h3>
+        <form id="change-password-form">
+
+          <input type="password" id="current-password" placeholder="Current Password" required>
+          <input type="password" id="new-password" placeholder="New Password" required>
+          <input type="password" id="confirm-password" placeholder="Confirm New Password" required>
+
+          <button type="submit" class="glowing-button w-full">
+            Update Password
+          </button>
+
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Account Actions -->
+    <div class="card">
+      <h3>Account Actions</h3>
+
+      <div class="logout-section">
+        <button onclick="handleLogout()" class="logout-btn">
+          Logout
+        </button>
+      </div>
+
+      <div class="security-box">
+        <strong>Security Notice:</strong>
+        Your data is protected using SHA-256 encryption.
+      </div>
+    </div>
+
+    <!-- Role Permissions -->
+    <div class="card">
+      <h3>Role Permissions</h3>
+      <ul id="role-permissions" class="permissions-list"></ul>
+    </div>
+
+  </div>
+</div>
 
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-4 right-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 shadow-2xl hidden z-50 max-w-sm">
