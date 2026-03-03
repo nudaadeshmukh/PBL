@@ -16,26 +16,30 @@ import java.util.List;
  * Service layer for transaction business logic.
  *
  * Why the service layer exists:
- * - Controllers should only handle HTTP (mapping URLs, parsing request/response).
- *   Business rules (e.g. "transactionId must be unique", "set timestamp at creation")
- *   belong here so they can be reused by other entry points (e.g. another controller,
- *   a message listener) and are easier to unit test.
+ * - Controllers should only handle HTTP (mapping URLs, parsing
+ * request/response).
+ * Business rules (e.g. "transactionId must be unique", "set timestamp at
+ * creation")
+ * belong here so they can be reused by other entry points (e.g. another
+ * controller,
+ * a message listener) and are easier to unit test.
  * - We keep the controller thin and the repository focused on persistence; the
- *   service orchestrates validation, entity creation, and repository calls.
+ * service orchestrates validation, entity creation, and repository calls.
  *
  * Why validation belongs here (in addition to DTO validation):
  * - DTO validation (@NotBlank, @Positive) runs at the controller and rejects
- *   malformed input early. Service-layer checks enforce business rules that
- *   go beyond format: e.g. "transactionId must not already exist", "amount > 0"
- *   (also enforced by DTO, but we could add rules like max amount, allowed senders).
+ * malformed input early. Service-layer checks enforce business rules that
+ * go beyond format: e.g. "transactionId must not already exist", "amount > 0"
+ * (also enforced by DTO, but we could add rules like max amount, allowed
+ * senders).
  * - Duplicate check is a business rule: we throw DuplicateTransactionException
- *   so the global handler can return 409 Conflict with a clear message.
+ * so the global handler can return 409 Conflict with a clear message.
  *
  * Why we separate controller from repository:
  * - Controller depends on service (interface to the application). Repository is
- *   an implementation detail; the controller never talks to the repository
- *   directly. This keeps dependencies one-way and makes it easy to add caching,
- *   events, or different storage without touching the controller.
+ * an implementation detail; the controller never talks to the repository
+ * directly. This keeps dependencies one-way and makes it easy to add caching,
+ * events, or different storage without touching the controller.
  */
 @Service
 public class TransactionService {
@@ -58,6 +62,7 @@ public class TransactionService {
      * - Sets timestamp to now (server authority; client cannot forge it).
      * - Converts DTO to entity, saves, and returns the persisted entity.
      */
+
     @Transactional
     public Transaction createTransaction(TransactionRequest request) {
         if (transactionRepository.findByTransactionId(request.getTransactionId()).isPresent()) {
@@ -72,9 +77,13 @@ public class TransactionService {
                 request.getSender(),
                 request.getReceiver(),
                 request.getAmount(),
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
         return transactionRepository.save(transaction);
+    }
+
+    // in TransactionService.java
+    public List<Transaction> getUnsyncedTransactions() {
+        return transactionRepository.findByOnChainFalse();
     }
 
     /**
@@ -84,6 +93,11 @@ public class TransactionService {
     @Transactional(readOnly = true)
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
+    }
+
+    @Transactional
+    public Transaction save(Transaction transaction) {
+        return transactionRepository.save(transaction);
     }
 
     /**

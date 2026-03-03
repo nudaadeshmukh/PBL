@@ -1,6 +1,7 @@
 package com.example.sable.blockchain;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -12,8 +13,15 @@ public class BlockchainController {
         this.blockchainService = blockchainService;
     }
 
-    @GetMapping("/blockchain/send")
-    public String sendTx() throws Exception {
-        return blockchainService.sendTransaction();
+    // GET /blockchain/send/{transactionId}
+    @GetMapping("/blockchain/send/{transactionId}")
+    public String sendTx(@PathVariable String transactionId) throws Exception {
+        return blockchainService.sendTransaction(transactionId);
+    }
+
+    @GetMapping("/blockchain/sync")
+    public String syncAll() throws Exception {
+        blockchainService.syncAllTransactionsToBlockchain();
+        return "Synced all DB transactions to Ganache";
     }
 }
