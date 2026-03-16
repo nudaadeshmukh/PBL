@@ -1,4 +1,4 @@
-package com.example.sable.exception;
+package com.example.SABLE.exception;
 
 /**
  * Thrown when a requested resource (e.g. a transaction) does not exist.

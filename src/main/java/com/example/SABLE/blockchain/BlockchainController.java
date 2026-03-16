@@ -1,4 +1,4 @@
-package com.example.sable.blockchain;
+package com.example.SABLE.blockchain;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

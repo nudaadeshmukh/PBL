@@ -1,4 +1,4 @@
-package com.example.sable.controller;
+package com.example.SABLE.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.sable.dto.TransactionRequest;
-import com.example.sable.model.Transaction;
-import com.example.sable.service.TransactionService;
+import com.example.SABLE.dto.TransactionRequest;
+import com.example.SABLE.model.Transaction;
+import com.example.SABLE.service.TransactionService;
 
 import java.util.List;
 

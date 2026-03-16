@@ -1,4 +1,4 @@
-package com.example.sable;
+package com.example.SABLE;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,9 +16,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * TransactionRepository, and GlobalExceptionHandler are discovered and wired automatically.
  */
 @SpringBootApplication
-public class SableApplication {
+public class BlastApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SableApplication.class, args);
+        SpringApplication.run(BlastApplication.class, args);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.sable.model;
+package com.example.SABLE.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

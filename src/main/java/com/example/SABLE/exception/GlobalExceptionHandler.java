@@ -1,4 +1,4 @@
-package com.example.sable.exception;
+package com.example.SABLE.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

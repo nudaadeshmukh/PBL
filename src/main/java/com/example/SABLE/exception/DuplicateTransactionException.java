@@ -1,4 +1,4 @@
-package com.example.sable.exception;
+package com.example.SABLE.exception;
 
 /**
  * Thrown when an attempt is made to create a transaction with a transactionId

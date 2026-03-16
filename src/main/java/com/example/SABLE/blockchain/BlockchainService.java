@@ -1,4 +1,4 @@
-package com.example.sable.blockchain;
+package com.example.SABLE.blockchain;
 
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;

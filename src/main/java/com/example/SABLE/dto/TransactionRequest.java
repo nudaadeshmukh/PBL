@@ -1,4 +1,4 @@
-package com.example.sable.dto;
+package com.example.SABLE.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
