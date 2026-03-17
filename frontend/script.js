@@ -11,6 +11,57 @@ function showPage(pageId) {
 // Default page
 showPage("landing-page");
 
+// =========================
+// Backend API integration
+// =========================
+const API_BASE_URL = "http://localhost:8081";
+
+function getAuthToken() {
+    const user = getCurrentUser();
+    return user?.token || null;
+}
+
+async function apiRequest(path, { method = "GET", body = null, auth = false } = {}) {
+    const headers = { "Content-Type": "application/json" };
+    if (auth) {
+        const token = getAuthToken();
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const res = await fetch(`${API_BASE_URL}${path}`, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : null
+    });
+
+    const text = await res.text();
+    const data = text ? (() => { try { return JSON.parse(text); } catch { return text; } })() : null;
+
+    if (!res.ok) {
+        const msg = (data && typeof data === "object" && data.message) ? data.message : (typeof data === "string" ? data : `HTTP ${res.status}`);
+        throw new Error(msg);
+    }
+
+    return data;
+}
+
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
+    if (!toast || !toastMessage) {
+        alert(message);
+        return;
+    }
+    toastMessage.textContent = message;
+    toast.classList.remove("hidden");
+    setTimeout(() => toast.classList.add("hidden"), 2500);
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value ?? "";
+}
+
 //LOCAL STORAGE HELPERS
 
 function getUsers() {
@@ -50,34 +101,31 @@ function handleSignup(e) {
         return;
     }
 
-    let users = getUsers();
-
-    // Check if email exists
-    let exists = users.find(u => u.email === email);
-
-    if (exists) {
-        alert("Email already registered!");
-        return;
-    }
-
-    // Encrypt password
-    let encrypted = CryptoJS.SHA256(password).toString();
-
-    let newUser = {
-        name,
-        email,
-        empId,
-        role,
-        password: encrypted,
-        lastLogin: null
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-
-    alert("Registration Successful!");
-
-    showPage("login-page");
+    const roleUpper = (role || "").toUpperCase();
+    apiRequest("/api/auth/register", {
+        method: "POST",
+        body: {
+            username: name,
+            email,
+            password,
+            role: roleUpper
+        }
+    }).then((resp) => {
+        const now = new Date().toLocaleString();
+        setCurrentUser({
+            name: resp.username || name,
+            email: resp.email || email,
+            empId,
+            role: resp.role || roleUpper,
+            token: resp.token,
+            lastLogin: now
+        });
+        showToast(resp.message || "Registration successful");
+        loadDashboard();
+        showPage("dashboard-container");
+    }).catch((err) => {
+        alert(`Registration failed: ${err.message}`);
+    });
 }
 
 
@@ -91,33 +139,35 @@ function handleLogin(e) {
 
     let errorBox = document.getElementById("login-error");
 
-    let users = getUsers();
+    apiRequest("/api/auth/login", {
+        method: "POST",
+        body: {
+            usernameOrEmail: email,
+            password
+        }
+    }).then((resp) => {
+        const selectedRoleUpper = (role || "").toUpperCase();
+        if (selectedRoleUpper && resp.role && resp.role.toUpperCase() !== selectedRoleUpper) {
+            throw new Error(`Role mismatch. You selected ${selectedRoleUpper} but your account role is ${resp.role}`);
+        }
 
-    let encrypted = CryptoJS.SHA256(password).toString();
+        errorBox.classList.add("hidden");
+        setCurrentUser({
+            name: resp.username,
+            email: resp.email,
+            empId: getCurrentUser()?.empId || "",
+            role: resp.role,
+            token: resp.token,
+            lastLogin: new Date().toLocaleString()
+        });
 
-    let user = users.find(u =>
-        u.email === email &&
-        u.password === encrypted &&
-        u.role === role
-    );
-
-    if (!user) {
-        errorBox.textContent = "Invalid email, password, or role!";
+        showToast(resp.message || "Login successful");
+        loadDashboard();
+        showPage("dashboard-container");
+    }).catch((err) => {
+        errorBox.textContent = err.message || "Login failed";
         errorBox.classList.remove("hidden");
-        return;
-    }
-
-    errorBox.classList.add("hidden");
-
-    // Update last login
-    user.lastLogin = new Date().toLocaleString();
-    saveUsers(users);
-
-    setCurrentUser(user);
-
-    loadDashboard();
-
-    showPage("dashboard-container");
+    });
 }
 
 //DASHBOARD LOAD
@@ -126,25 +176,19 @@ function loadDashboard() {
 
     if (!user) return;
 
-    document.getElementById("user-name").textContent = user.name;
-    document.getElementById("user-role").textContent = user.role;
-    document.getElementById("user-last-login").textContent =
-        user.lastLogin || "First Login";
+    setText("user-name", user.name);
+    setText("user-role", user.role);
+    setText("user-last-login", user.lastLogin || "First Login");
+    setText("user-avatar", (user.name || "?").charAt(0).toUpperCase());
 
-    document.getElementById("user-avatar").textContent =
-        user.name.charAt(0).toUpperCase();
+    // Profile panel fields (these ids exist in index.html)
+    setText("profile-name", user.name);
+    setText("profile-role", user.role);
+    setText("profile-avatar", (user.name || "?").charAt(0).toUpperCase());
+    setText("profile-email", user.email);
+    setText("profile-empid", user.empId);
+    setText("profile-lastlogin", user.lastLogin || "First Login");
 
-    document.getElementById("profile-name").textContent = user.name;
-    document.getElementById("profile-role").textContent = user.role;
-
-    document.getElementById("profile-avatar").textContent =
-        user.name.charAt(0).toUpperCase();
-
-    document.getElementById("profile-info").innerHTML = `
-        <p><b>Email:</b> ${user.email}</p>
-        <p><b>Employee ID:</b> ${user.empId}</p>
-        <p><b>Role:</b> ${user.role}</p>
-    `;
     refreshDashboard();
 }
 
@@ -368,9 +412,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (form) {
 
-        form.addEventListener("submit", function (e) {
+        form.addEventListener("submit", async function (e) {
 
             e.preventDefault();
+
+            const user = getCurrentUser();
+            if (!user?.token) {
+                alert("Please login first.");
+                showPage("login-page");
+                return;
+            }
 
             let sender = document.getElementById("sender").value.trim();
             let receiver = document.getElementById("receiver").value.trim();
@@ -398,6 +449,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 description,
                 timestamp
             };
+
+            // Persist to backend (ADMIN only)
+            try {
+                await apiRequest("/api/transactions", {
+                    method: "POST",
+                    auth: true,
+                    body: {
+                        transactionId: transaction.id,
+                        sender: transaction.sender,
+                        receiver: transaction.receiver,
+                        amount: transaction.amount
+                    }
+                });
+            } catch (err) {
+                alert(`Backend rejected the transaction: ${err.message}\n\nTip: Only ADMIN can create transactions.`);
+                return;
+            }
 
             // Get previous block
             let previousBlock = blockchain[blockchain.length - 1];
