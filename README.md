@@ -23,7 +23,6 @@
 - [API Reference](#-api-reference)
 - [Roles & Permissions](#-roles--permissions)
 - [Blockchain Design](#-blockchain-design)
-- [Common Issues](#-common-issues)
 - [Team](#-team)
 
 ---
