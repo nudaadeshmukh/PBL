@@ -13,7 +13,6 @@ public class BlockchainController {
         this.blockchainService = blockchainService;
     }
 
-    // GET /blockchain/send/{transactionId}
     @GetMapping("/blockchain/send/{transactionId}")
     public String sendTx(@PathVariable String transactionId) throws Exception {
         return blockchainService.sendTransaction(transactionId);
@@ -25,3 +24,4 @@ public class BlockchainController {
         return "Synced all DB transactions to Ganache";
     }
 }
+
