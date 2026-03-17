@@ -41,15 +41,15 @@ The system combines:
 
 ## ✨ Features
 
-✅ Create and store financial transactions in MySQL
-✅ Sync transactions to a private Ethereum blockchain (Ganache)
-✅ On-chain immutability — any data change breaks the hash chain
-✅ Tamper detection via blockchain integrity verification
-✅ JWT-based stateless authentication
-✅ Three-tier role-based access control (Admin / Auditor / User)
-✅ Duplicate transaction prevention at the service layer
-✅ Centralized, consistent error responses via GlobalExceptionHandler
-✅ Bean Validation on all API inputs
+- Create and store financial transactions in MySQL
+- Sync transactions to a private Ethereum blockchain (Ganache)
+- On-chain immutability — any data change breaks the hash chain
+- Tamper detection via blockchain integrity verification
+- JWT-based stateless authentication
+- Three-tier role-based access control (Admin / Auditor / User)
+- Duplicate transaction prevention at the service layer
+- Centralized, consistent error responses via GlobalExceptionHandler
+- Bean Validation on all API inputs
 
 ---
 
