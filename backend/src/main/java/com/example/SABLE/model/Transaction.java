@@ -38,6 +38,9 @@ public class Transaction {
     @Column(nullable = false)
     private boolean onChain = false;
 
+    @Column(name = "blockchain_tx_hash")
+    private String blockchainTxHash;
+
     public Transaction() {}
 
     public Transaction(String transactionId, String sender, String receiver, Double amount, LocalDateTime timestamp) {
@@ -62,5 +65,7 @@ public class Transaction {
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
     public boolean isOnChain() { return onChain; }
     public void setOnChain(boolean onChain) { this.onChain = onChain; }
+    public String getBlockchainTxHash() { return blockchainTxHash; }
+    public void setBlockchainTxHash(String blockchainTxHash) { this.blockchainTxHash = blockchainTxHash; }
 }
 

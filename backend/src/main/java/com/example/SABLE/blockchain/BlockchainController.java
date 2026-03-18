@@ -1,8 +1,12 @@
 package com.example.sable.blockchain;
 
+import com.example.sable.dto.GanacheBlockDto;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class BlockchainController {
@@ -22,6 +26,11 @@ public class BlockchainController {
     public String syncAll() throws Exception {
         blockchainService.syncAllTransactionsToBlockchain();
         return "Synced all DB transactions to Ganache";
+    }
+
+    @GetMapping("/api/blockchain/blocks")
+    public List<GanacheBlockDto> getRecentBlocks(@RequestParam(defaultValue = "20") int limit) throws Exception {
+        return blockchainService.getRecentBlocks(limit);
     }
 }
 

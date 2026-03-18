@@ -54,7 +54,7 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public List<Transaction> getUnsyncedTransactions() {
-        return transactionRepository.findByOnChainFalse();
+        return transactionRepository.findByOnChainFalseOrderByIdAsc();
     }
 
     @Transactional

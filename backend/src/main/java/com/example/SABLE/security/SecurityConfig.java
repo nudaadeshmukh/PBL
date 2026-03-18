@@ -41,8 +41,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/transactions").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/transactions/**").hasAnyRole("ADMIN", "AUDITOR", "USER")
-                        .requestMatchers(HttpMethod.GET, "/blockchain/sync").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/blockchain/send/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/blockchain/**").hasAnyRole("ADMIN", "AUDITOR", "USER")
+                        // Dev convenience: allow browser access without JWT token.
+                        .requestMatchers(HttpMethod.GET, "/blockchain/sync").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/blockchain/send/**").permitAll()
                         .requestMatchers("/blockchain/**").hasAnyRole("ADMIN", "AUDITOR")
                         .anyRequest().authenticated()
                 )
