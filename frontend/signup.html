@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup - BLAST</title>
+
+    <!-- Link CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind (if you used it before) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+</head>
+
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-screen">
+
+    <div class="min-h-screen flex items-center justify-center p-6">
+        <div class="w-full max-w-2xl">
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
+
+                <!-- Header -->
+                <div class="mb-8 flex justify-between items-center">
+
+                    <!-- Back Button -->
+                    <a href="index.html" class="back-btn text-white">← Back to Home</a>
+
+                    <!-- Logo -->
+                    <a href="index.html" class="text-2xl font-bold text-white">🔐 BLAST</a>
+                </div>
+
+                <!-- Form -->
+                <form onsubmit="handleSignup(event)" class="space-y-6">
+                    
+                    <div>
+                        <label class="text-white">Full Name</label>
+                        <input type="text" id="signup-name" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                    </div>
+
+                    <div>
+                        <label class="text-white">Email</label>
+                        <input type="email" id="signup-email" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                    </div>
+
+                    <div>
+                        <label class="text-white">Employee ID</label>
+                        <input type="text" id="signup-employeeId" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                    </div>
+
+                    <div>
+                        <label class="text-white">Role</label>
+                        <select id="signup-role" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                            <option value="">Select your role</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Auditor">Auditor</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-white">Password</label>
+                        <input type="password" id="signup-password" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                    </div>
+
+                    <div>
+                        <label class="text-white">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                    </div>
+
+                    <button type="submit" class="glowing-button w-full">Register</button>
+
+                    <div class="text-center text-white/70 text-sm">
+                        Already have an account?
+                        <a href="login.html" class="text-blue-400">Login</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="script.js"></script>
+
+</body>
+</html>

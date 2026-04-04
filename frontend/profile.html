@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile - BLAST</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-screen">
+
+<!-- Sidebar -->
+<aside class="fixed left-0 top-0 bottom-0 w-64 bg-black/30 backdrop-blur-md border-r border-white/10 p-6">
+
+    <div class="text-2xl font-bold text-white mb-8">🔐 BLAST</div>
+
+    <nav class="space-y-2">
+        <a href="dashboard.html" class="menu-item text-white block">Dashboard</a>
+        <a href="admin.html" class="menu-item text-white block">Admin Panel</a>
+        <a href="auditor.html" class="menu-item text-white block">Audit Panel</a>
+        <a href="profile.html" class="menu-item text-white block">Profile</a>
+    </nav>
+
+    <button onclick="handleLogout()" class="mt-8 text-white/70 hover:text-red-400">
+        Logout
+    </button>
+
+</aside>
+
+<!-- Main Content -->
+<div class="ml-64 p-8">
+
+    <div class="max-w-5xl space-y-8">
+
+        <!-- Title -->
+        <div>
+            <h1 class="text-3xl text-white">Profile</h1>
+            <p class="text-white/70">Manage your account settings</p>
+        </div>
+
+        <!-- Profile Info -->
+        <div class="grid md:grid-cols-2 gap-6">
+
+            <!-- Info Card -->
+            <div class="bg-white/10 p-6 rounded-xl border border-white/20">
+
+                <div class="flex items-center gap-4 mb-4">
+                    <div id="profile-avatar" class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold"></div>
+                    <div>
+                        <h3 id="profile-name" class="text-white text-lg"></h3>
+                        <p id="profile-role" class="text-white/70 text-sm"></p>
+                    </div>
+                </div>
+
+                <div class="space-y-4 mt-4">
+
+    <div class="bg-white/5 p-3 rounded-lg flex justify-between">
+        <span class="text-white/70">Email:</span>
+        <span id="profile-email" class="text-white font-medium"></span>
+    </div>
+
+    <div class="bg-white/5 p-3 rounded-lg flex justify-between">
+        <span class="text-white/70">Employee ID: </span>
+        <span id="profile-empid" class="text-white font-medium"></span>
+    </div>
+
+    <div class="bg-white/5 p-3 rounded-lg flex justify-between">
+        <span class="text-white/70">Last Login: </span>
+        <span id="profile-lastlogin" class="text-white font-medium"></span>
+    </div>
+
+</div>
+
+            </div>
+
+            <!-- Change Password -->
+            <div class="bg-white/10 p-6 rounded-xl border border-white/20">
+
+                <h3 class="text-white mb-4">Change Password</h3>
+
+                <form id="change-password-form" class="space-y-4">
+
+                    <input type="password" id="current-password" placeholder="Current Password" class="w-full p-2 bg-white/10 text-white rounded" required>
+                    <input type="password" id="new-password" placeholder="New Password" class="w-full p-2 bg-white/10 text-white rounded" required>
+                    <input type="password" id="confirm-password" placeholder="Confirm New Password" class="w-full p-2 bg-white/10 text-white rounded" required>
+
+                    <button type="submit" class="glowing-button w-full">
+                        Update Password
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <!-- Account Actions -->
+        <div class="bg-white/10 p-6 rounded-xl border border-white/20">
+
+            <h3 class="text-white mb-4">Account Actions</h3>
+
+            <button onclick="handleLogout()" class="bg-red-500 px-4 py-2 rounded text-white">
+                Logout
+            </button>
+
+            <div class="text-white/70 mt-4 text-sm">
+                <strong>Security Notice:</strong> Your data is protected using SHA-256 encryption.
+            </div>
+
+        </div>
+
+        <!-- Role Permissions -->
+        <div class="bg-white/10 p-6 rounded-xl border border-white/20">
+
+            <h3 class="text-white mb-4">Role Permissions</h3>
+            <ul id="role-permissions" class="text-white/70 space-y-2"></ul>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed top-4 right-4 bg-white/10 border border-white/20 rounded-lg p-4 hidden">
+    <div id="toast-message" class="text-white"></div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

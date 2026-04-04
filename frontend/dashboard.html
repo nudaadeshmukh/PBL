@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - BLAST</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-screen">
+
+<!-- Sidebar -->
+<aside class="fixed left-0 top-0 bottom-0 w-64 bg-black/30 backdrop-blur-md border-r border-white/10 p-6 z-40">
+    
+    <div class="text-2xl font-bold text-white mb-8">🔐 BLAST</div>
+
+    <nav class="space-y-2">
+
+        <!-- Dashboard -->
+        <a href="dashboard.html" id="menu-dashboard" class="menu-item flex items-center gap-3 text-white">
+            <span>Dashboard</span>
+        </a>
+
+        <!-- Admin Pages -->
+        <a href="admin.html" id="menu-admin" class="menu-item flex items-center gap-3 text-white">
+            <span>Admin Panel</span>
+        </a>
+
+        <!-- Auditor Pages -->
+        <a href="auditor.html" id="menu-audit" class="menu-item flex items-center gap-3 text-white">
+            <span>Audit Panel</span>
+        </a>
+
+        <!-- Profile -->
+        <a href="profile.html" id="menu-profile" class="menu-item flex items-center gap-3 text-white">
+            <span>Profile</span>
+        </a>
+
+    </nav>
+
+    <!-- Logout -->
+    <button onclick="handleLogout()" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white/70 hover:bg-red-500/20 hover:text-red-400 transition w-full mt-8">
+        <span>Logout</span>
+    </button>
+
+</aside>
+
+<!-- Main Content -->
+<div class="ml-64">
+
+    <!-- Top Bar -->
+    <header class="bg-black/20 backdrop-blur-md border-b border-white/10 px-8 py-4">
+        <div class="flex items-center justify-between">
+
+            <div>
+                <h2 class="text-xl font-semibold text-white">
+                    Welcome, <span id="user-name"></span>
+                </h2>
+                <p class="text-sm text-white/70">
+                    Last login: <span id="user-last-login"></span>
+                </p>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <div class="text-sm text-white/70">Role</div>
+                    <div class="font-medium text-white" id="user-role"></div>
+                </div>
+
+                <div id="user-avatar" class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold"></div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="p-8">
+
+        <div class="grid md:grid-cols-3 gap-6 mb-8" id="stats-grid">
+            <!-- dynamic stats -->
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+            <h3 class="text-white text-xl font-semibold mb-4">Recent Activity</h3>
+            <div id="recent-blocks"></div>
+        </div>
+
+        <div class="text-sm text-white/70 mt-4">
+            Last Backup: <span id="last-backup"></span>
+        </div>
+
+    </main>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

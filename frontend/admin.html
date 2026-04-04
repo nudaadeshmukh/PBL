@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - BLAST</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-screen">
+
+<!-- Sidebar -->
+<aside class="fixed left-0 top-0 bottom-0 w-64 bg-black/30 backdrop-blur-md border-r border-white/10 p-6">
+
+    <div class="text-2xl font-bold text-white mb-8">🔐 BLAST</div>
+
+    <nav class="space-y-2">
+
+        <a href="dashboard.html" class="menu-item text-white block">Dashboard</a>
+
+        <!-- Toggle Buttons -->
+        <button onclick="showAdminSection('add')" class="menu-item text-white block w-full text-left">
+            Add Transaction
+        </button>
+
+        <button onclick="showAdminSection('ledger')" class="menu-item text-white block w-full text-left">
+            Blockchain Ledger
+        </button>
+
+        <a href="profile.html" class="menu-item text-white block">Profile</a>
+
+    </nav>
+
+    <button onclick="handleLogout()" class="mt-8 text-white/70 hover:text-red-400">
+        Logout
+    </button>
+
+</aside>
+
+<!-- Main Content -->
+<div class="ml-64 p-8">
+
+    <!-- ================= ADD TRANSACTION ================= -->
+    <div id="add-section">
+
+        <div class="max-w-4xl space-y-8">
+
+            <div>
+                <h1 class="text-3xl text-white">Add Transaction</h1>
+                <p class="text-white/70">Create a new transaction</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+
+                <!-- FORM -->
+                <div class="bg-white/10 p-6 rounded-xl border border-white/20">
+                    <form id="transaction-form" onsubmit="handleAddTransaction(event)" class="space-y-4">
+
+                        <input type="text" id="sender" placeholder="Sender ID" class="w-full p-2 rounded bg-white/10 text-white" required>
+                        <input type="text" id="receiver" placeholder="Receiver ID" class="w-full p-2 rounded bg-white/10 text-white" required>
+                        <input type="number" id="amount" placeholder="Amount" class="w-full p-2 rounded bg-white/10 text-white" required>
+                        <textarea id="description" placeholder="Description" class="w-full p-2 rounded bg-white/10 text-white"></textarea>
+
+                        <button type="submit" class="glowing-button w-full">Submit</button>
+
+                    </form>
+                </div>
+
+                <!-- RESULT (flex-col + scroll so all transactions stay visible; row flex was hiding earlier rows) -->
+                <div id="transaction-result" class="bg-white/10 p-6 rounded-xl border border-white/20 text-white/70 flex flex-col gap-3 w-full min-h-[200px] max-h-[min(520px,70vh)] overflow-y-auto overflow-x-hidden justify-start items-stretch">
+                    <span class="text-white/50 text-sm">Transaction history will appear here</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================= BLOCKCHAIN ================= -->
+    <div id="ledger-section" class="hidden">
+
+        <h1 class="text-3xl text-white mb-4">Blockchain Ledger</h1>
+        <p class="text-white/70 mb-6">View all blocks</p>
+
+        <div id="ledger-blocks" class="space-y-4"></div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+function showAdminSection(section) {
+    document.getElementById("add-section").classList.add("hidden");
+    document.getElementById("ledger-section").classList.add("hidden");
+
+    if (section === "add") {
+        document.getElementById("add-section").classList.remove("hidden");
+        loadTransactions();
+    }
+
+    if (section === "ledger") {
+        document.getElementById("ledger-section").classList.remove("hidden");
+        loadLedger();
+    }
+}
+</script>
+
+</body>
+</html>

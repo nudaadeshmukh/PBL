@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - BLAST</title>
+
+    <base href="./">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+
+    <div class="min-h-screen flex items-center justify-center p-6">
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
+
+            <!-- Header -->
+            <div class="mb-8 flex justify-between items-center">
+
+                <!-- Back Button -->
+                <a href="index.html" class="back-btn text-white">← Back to Home</a>
+
+                <!-- Logo -->
+                <a href="index.html" class="text-2xl font-bold text-white"> 🔐 BLAST</a>
+            </div>
+
+            <!-- Welcome -->
+            <div class="text-center mb-6 login-welcome">
+                <h2 class="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+                <p class="text-white/70 text-sm">
+                    "Security is not a product, but a process built on trust and transparency."
+                </p>
+            </div>
+
+            <!-- Form -->
+            <form onsubmit="handleLogin(event)" class="space-y-6">
+                
+                <div>
+                    <label class="text-white">Email</label>
+                    <input type="email" id="login-email" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                </div>
+
+                <div>
+                    <label class="text-white">Password</label>
+                    <input type="password" id="login-password" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                </div>
+
+                <div>
+                    <label class="text-white">Role</label>
+                    <select id="login-role" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                        <option value="">Select your role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Auditor">Auditor</option>
+                    </select>
+                </div>
+
+                <div id="login-error" class="hidden text-red-400 text-sm bg-red-400/10 p-3 rounded-lg"></div>
+
+                <button type="submit" class="glowing-button w-full">Login</button>
+
+                <div class="text-center space-y-2">
+                    <a href="#" class="text-white/70 text-sm block">Forgot Password?</a>
+
+                    <div class="text-white/70 text-sm">
+                        Don't have an account? 
+                        <a href="signup.html" class="text-blue-400">Sign Up</a>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
