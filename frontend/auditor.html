@@ -42,18 +42,7 @@
 <!-- Main Content -->
 <div class="ml-64 p-8">
 
-    <!-- Shared: auditors must authenticate as Admin to read that admin’s chain (same browser storage) -->
-    <div class="mb-8 bg-white/10 p-6 rounded-xl border border-white/20 max-w-3xl">
-        <h2 class="text-lg font-semibold text-white mb-1">Admin ledger access</h2>
-        <p class="text-white/60 text-sm mb-4">
-            Enter the <span class="text-white/90">Admin</span> email and password whose blockchain you are auditing.
-            Verification and reports use this admin’s transactions only.
-        </p>
-        <div class="grid md:grid-cols-2 gap-4">
-            <input type="email" id="audit-admin-email" autocomplete="username" placeholder="Admin email" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white placeholder-white/40">
-            <input type="password" id="audit-admin-password" autocomplete="current-password" placeholder="Admin password" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white placeholder-white/40">
-        </div>
-    </div>
+    
 
     <!-- ================= VERIFY BLOCKCHAIN ================= -->
     <div id="verify-section">

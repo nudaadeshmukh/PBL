@@ -1,6 +1,5 @@
-/***********************
- LOCAL STORAGE HELPERS
-************************/
+//LOCAL STORAGE HELPERS
+
 function getUsers() {
     try {
         const raw = localStorage.getItem("users");
@@ -49,9 +48,8 @@ function clearCurrentUser() {
 })();
 
 
-/***********************
- SIGNUP
-************************/
+//SIGNUP
+
 function handleSignup(e) {
     e.preventDefault();
 
@@ -98,9 +96,8 @@ function handleSignup(e) {
 }
 
 
-/***********************
- LOGIN
-************************/
+//LOGIN
+
 function handleLogin(e) {
     e.preventDefault();
 
@@ -136,18 +133,16 @@ function handleLogin(e) {
 }
 
 
-/***********************
- LOGOUT
-************************/
+//LOGOUT
+
 function handleLogout() {
     clearCurrentUser();
     window.location.href = "login.html";
 }
 
 
-/***********************
- DASHBOARD LOAD
-************************/
+//DASHBOARD LOAD
+
 function loadDashboard() {
     let user = getCurrentUser();
     if (!user) return;
@@ -160,9 +155,8 @@ function loadDashboard() {
 }
 
 
-/***********************
- PROFILE LOAD
-************************/
+//PROFILE LOAD
+
 function loadProfile() {
     let user = getCurrentUser();
     if (!user) return;
@@ -179,9 +173,8 @@ function loadProfile() {
 }
 
 
-/***********************
- ROLE MENU CONTROL
-************************/
+//ROLE MENU CONTROL
+
 function handleRoleMenu(role) {
     let adminMenu = document.getElementById("menu-admin");
     let auditMenu = document.getElementById("menu-audit");
@@ -196,9 +189,8 @@ function handleRoleMenu(role) {
 }
 
 
-/***********************
- PROFILE PERMISSIONS
-************************/
+//PROFILE PERMISSIONS
+
 function loadPermissions(role) {
     let permList = document.getElementById("role-permissions");
     if (!permList) return;
@@ -217,9 +209,8 @@ function loadPermissions(role) {
 }
 
 
-/***********************
- HELPERS
-************************/
+//HELPERS
+
 function setText(id, value) {
     let el = document.getElementById(id);
     if (el) el.textContent = value || "";
@@ -231,9 +222,8 @@ function setAvatar(id, name) {
 }
 
 
-/***********************
- BLOCKCHAIN (per logged-in user — isolated by account)
-************************/
+//BLOCKCHAIN (per logged-in user — isolated by account)
+
 /** Old shared ledger (removed — was incorrectly copied to multiple users). */
 const LEGACY_GLOBAL_CHAIN_KEY = "blockchain_ledger";
 
@@ -332,74 +322,18 @@ function getBlockchainChainForEmail(email) {
     return [];
 }
 
-/**
- * Auditor: validate Admin email + password, return that admin’s blockchain.
- * @returns {{ ok: true, admin: object, chain: array } | { ok: false, error: string, chain: [] }}
- */
-function resolveAdminChainForAuditor() {
-    const emailEl = document.getElementById("audit-admin-email");
-    const passEl = document.getElementById("audit-admin-password");
-    if (!emailEl || !passEl) {
-        return { ok: false, error: "missing_inputs", chain: [] };
-    }
-    const email = emailEl.value.trim().toLowerCase();
-    const password = passEl.value;
-    if (!email || !password) {
-        return { ok: false, error: "credentials_required", chain: [] };
-    }
-    if (typeof CryptoJS === "undefined") {
-        return { ok: false, error: "no_crypto", chain: [] };
-    }
-    const users = getUsers();
-    const encrypted = CryptoJS.SHA256(password).toString();
-    const admin = users.find(
-        (u) => u.email.toLowerCase() === email && u.role === "Admin" && u.password === encrypted
-    );
-    if (!admin) {
-        return { ok: false, error: "invalid_admin", chain: [] };
-    }
-    const chain = getBlockchainChainForEmail(admin.email);
-    return { ok: true, admin, chain };
-}
+function getAllTransactionsForAudit() {
+    let users = getUsers();
+    let allChains = [];
 
-function buildChainFromLegacyTransactions(txs) {
-    let chain = [];
-    let prevHash = "0";
-    txs.forEach((t, i) => {
-        const block = {
-            index: i,
-            prevHash,
-            sender: t.sender,
-            receiver: t.receiver,
-            amount: String(t.amount),
-            description: t.description || "",
-            time: t.time,
-            nonce: Date.now() + i
-        };
-        block.hash = computeBlockHash(block);
-        chain.push(block);
-        prevHash = block.hash;
+    users.forEach(user => {
+        if (user.role === "Admin") {
+            let chain = getBlockchainChainForEmail(user.email);
+            allChains = allChains.concat(chain);
+        }
     });
-    return chain;
-}
 
-function migrateLegacyIfNeeded(userKey) {
-    if (localStorage.getItem(userKey)) return;
-    const user = getCurrentUser();
-    if (!user) return;
-
-    const legacyTxKey = "transactions_" + user.email;
-    const legacyRaw = localStorage.getItem(legacyTxKey);
-    if (legacyRaw) {
-        try {
-            const txs = JSON.parse(legacyRaw) || [];
-            if (txs.length && typeof CryptoJS !== "undefined") {
-                const chain = buildChainFromLegacyTransactions(txs);
-                localStorage.setItem(userKey, JSON.stringify(chain));
-                return;
-            }
-        } catch (e) {}
-    }
+    return allChains;
 }
 
 function removeUnsafeLegacyGlobalChain() {
@@ -557,9 +491,7 @@ function escapeHtml(s) {
     return d.innerHTML;
 }
 
-/***********************
- DASHBOARD STATS + RECENT ACTIVITY
-************************/
+//DASHBOARD STATS + RECENT ACTIVITY
 function loadDashboardStats() {
     const statsGrid = document.getElementById("stats-grid");
     const recent = document.getElementById("recent-blocks");
@@ -605,9 +537,7 @@ function loadDashboardStats() {
     }
 }
 
-/***********************
- VERIFY BLOCKCHAIN
-************************/
+//VERIFY BLOCKCHAIN
 function runBlockchainVerification(chain) {
     let ok = true;
     let msg = "";
@@ -627,7 +557,7 @@ function runBlockchainVerification(chain) {
             }
         } else {
             if (b.prevHash !== chain[i - 1].hash) {
-                return { ok: false, msg: `Broken chain link at block ${i + 1}.` };
+                return { ok: false, msg: `blockchain verified ✔. Broken chain link at block ${i + 1}.` };
             }
         }
     }
@@ -648,50 +578,33 @@ function handleVerifyBlockchain() {
     if (result) result.innerHTML = "";
 
     setTimeout(() => {
-        let chain;
-        let prefix = "";
 
-        const auditorInputs =
-            document.getElementById("audit-admin-email") &&
-            document.getElementById("audit-admin-password");
-        if (auditorInputs) {
-            const resolved = resolveAdminChainForAuditor();
-            if (!resolved.ok) {
-                let err = "Could not load admin ledger.";
-                if (resolved.error === "credentials_required") {
-                    err = "Enter the Admin email and password to verify that admin’s blockchain.";
-                } else if (resolved.error === "invalid_admin") {
-                    err = "Invalid Admin email or password.";
-                }
-                if (loading) loading.classList.add("hidden");
-                if (result) result.innerHTML = `<span class="text-red-400">${escapeHtml(err)}</span>`;
-                return;
+        // Get ALL transactions 
+        let chain = getAllTransactionsForAudit();
+
+        if (!chain || chain.length === 0) {
+            if (loading) loading.classList.add("hidden");
+            if (result) {
+                result.innerHTML = `<span class="text-red-400">No transactions found to verify.</span>`;
             }
-            chain = resolved.chain;
-            prefix = `Admin ${resolved.admin.email}: `;
-        } else {
-            chain = getBlockchain();
+            return;
         }
 
         const verdict = runBlockchainVerification(chain);
-        let msg = verdict.msg;
-        if (verdict.ok) {
-            msg = prefix + msg;
-        }
 
         if (loading) loading.classList.add("hidden");
+
         if (result) {
             result.innerHTML = verdict.ok
-                ? `<span class="text-green-400">${escapeHtml(msg)}</span>`
-                : `<span class="text-red-400">${escapeHtml(prefix + msg)}</span>`;
+                ? `<span class="text-green-400">${escapeHtml(verdict.msg)}</span>`
+                : `<span class="text-red-400">${escapeHtml(verdict.msg)}</span>`;
         }
+
     }, 300);
 }
 
+//AUDIT REPORT + TABLE
 
-/***********************
- AUDIT REPORT + TABLE
-************************/
 function parseBlockDate(timeStr) {
     const d = new Date(timeStr);
     return isNaN(d.getTime()) ? null : d;
@@ -732,20 +645,12 @@ function loadAuditTable() {
     const tbody = document.getElementById("audit-table");
     if (!tbody) return;
 
-    const resolved = resolveAdminChainForAuditor();
-    if (!resolved.ok) {
-        let hint = "Enter Admin email and password above, then open Audit Reports again.";
-        if (resolved.error === "invalid_admin") {
-            hint = "Invalid Admin email or password.";
-        }
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-white/70 py-4">${escapeHtml(hint)}</td></tr>`;
-        return;
-    }
+    //Get all transactions
+    const chain = filterChainForAudit(getAllTransactionsForAudit());
 
-    const chain = filterChainForAudit(resolved.chain);
-    if (chain.length === 0) {
+    if (!chain || chain.length === 0) {
         tbody.innerHTML =
-            '<tr><td colspan="7" class="text-center text-white/70 py-4">No matching transactions for this admin</td></tr>';
+            '<tr><td colspan="7" class="text-center text-white/70 py-4">No transactions found</td></tr>';
         return;
     }
 
@@ -766,17 +671,14 @@ function generateAuditReport() {
     const user = getCurrentUser();
     if (!user) return;
 
-    const resolved = resolveAdminChainForAuditor();
-    if (!resolved.ok) {
-        if (resolved.error === "credentials_required") {
-            alert("Enter the Admin email and password above to export that admin’s ledger.");
-        } else {
-            alert("Invalid Admin email or password.");
-        }
+    //Get all transactions
+    const chain = filterChainForAudit(getAllTransactionsForAudit());
+
+    if (!chain || chain.length === 0) {
+        alert("No transactions available for audit.");
         return;
     }
 
-    const chain = filterChainForAudit(resolved.chain);
     const exportedAt = new Date().toLocaleString();
     const lastLogin = user.lastLogin || "First Login";
 
@@ -784,7 +686,6 @@ function generateAuditReport() {
         "BLAST Audit Export",
         `Auditor (email),${user.email}`,
         `Auditor last login,${lastLogin}`,
-        `Admin ledger (email),${resolved.admin.email}`,
         `Export time,${exportedAt}`,
         "",
         "Block ID,Sender,Receiver,Amount (INR),Block #,Hash (truncated),Status,Timestamp"
@@ -808,23 +709,16 @@ function generateAuditReport() {
     const csv = [...header, ...rows].join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
+
     const a = document.createElement("a");
     a.href = url;
-    a.download = `blast-audit-lastlogin-${(user.email || "user").replace(/[^a-z0-9]/gi, "_")}-${Date.now()}.csv`;
+    a.download = `blast-audit-${Date.now()}.csv`;
     a.click();
+
     URL.revokeObjectURL(url);
 }
+//PASSWORD CHANGE
 
-function csvEscape(val) {
-    const s = String(val ?? "");
-    if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
-    return s;
-}
-
-
-/***********************
- PASSWORD CHANGE
-************************/
 function handleChangePassword(e) {
     e.preventDefault();
 
@@ -865,9 +759,8 @@ function handleChangePassword(e) {
 }
 
 
-/***********************
- AUTO LOAD + PROTECTION
-************************/
+//AUTO LOAD + PROTECTION
+
 /** Pages that do not require a session (supports /signup, /, and servers that omit .html). */
 function isPublicAuthPage() {
     const p = (window.location.pathname || "").toLowerCase();
@@ -887,6 +780,7 @@ function isLoginPage() {
 
 window.onload = function () {
     removeUnsafeLegacyGlobalChain();
+
     let user = getCurrentUser();
     let path = window.location.pathname;
 
@@ -900,10 +794,14 @@ window.onload = function () {
         return;
     }
 
-    if (path.includes("dashboard.html") && user) {
+    // APPLY ROLE MENU EVERYWHERE
+    if (user) {
+        handleRoleMenu(user.role);
+    }
+
+    if (path.includes("dashboard.html")) {
         loadDashboard();
         loadDashboardStats();
-        handleRoleMenu(user.role);
     }
 
     if (path.includes("profile.html")) {
@@ -912,15 +810,5 @@ window.onload = function () {
 
     if (path.includes("admin.html")) {
         loadTransactions();
-    }
-
-    if (path.includes("admin.html") && user && user.role !== "Admin") {
-        alert("Access Denied: Only Admin can access this page");
-        window.location.href = "dashboard.html";
-    }
-
-    if (path.includes("auditor.html") && user && user.role !== "Auditor") {
-        alert("Access Denied: Only Auditor can access this page");
-        window.location.href = "dashboard.html";
     }
 };
