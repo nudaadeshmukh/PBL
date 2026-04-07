@@ -3,6 +3,7 @@ package com.example.sable.service;
 import com.example.sable.dto.TransactionRequest;
 import com.example.sable.exception.DuplicateTransactionException;
 import com.example.sable.exception.ResourceNotFoundException;
+import com.example.sable.integrity.TransactionIntegritySnapshot;
 import com.example.sable.model.Transaction;
 import com.example.sable.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,16 @@ public class TransactionService {
                 request.getAmount(),
                 LocalDateTime.now()
         );
+
+        // Capture an integrity snapshot at creation time (used to detect later DB tampering).
+        var snap = TransactionIntegritySnapshot.compute(transaction);
+        transaction.setIntegrityRecordHash(snap.recordHash());
+        transaction.setIntegrityTransactionIdHash(snap.transactionIdHash());
+        transaction.setIntegritySenderHash(snap.senderHash());
+        transaction.setIntegrityReceiverHash(snap.receiverHash());
+        transaction.setIntegrityAmountHash(snap.amountHash());
+        transaction.setIntegrityTimestampHash(snap.timestampHash());
+
         return transactionRepository.save(transaction);
     }
 

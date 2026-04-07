@@ -41,6 +41,25 @@ public class Transaction {
     @Column(name = "blockchain_tx_hash")
     private String blockchainTxHash;
 
+    // Integrity snapshot hashes (computed at creation time).
+    @Column(name = "integrity_record_hash")
+    private String integrityRecordHash;
+
+    @Column(name = "integrity_transaction_id_hash")
+    private String integrityTransactionIdHash;
+
+    @Column(name = "integrity_sender_hash")
+    private String integritySenderHash;
+
+    @Column(name = "integrity_receiver_hash")
+    private String integrityReceiverHash;
+
+    @Column(name = "integrity_amount_hash")
+    private String integrityAmountHash;
+
+    @Column(name = "integrity_timestamp_hash")
+    private String integrityTimestampHash;
+
     public Transaction() {}
 
     public Transaction(String transactionId, String sender, String receiver, Double amount, LocalDateTime timestamp) {
@@ -67,5 +86,18 @@ public class Transaction {
     public void setOnChain(boolean onChain) { this.onChain = onChain; }
     public String getBlockchainTxHash() { return blockchainTxHash; }
     public void setBlockchainTxHash(String blockchainTxHash) { this.blockchainTxHash = blockchainTxHash; }
+
+    public String getIntegrityRecordHash() { return integrityRecordHash; }
+    public void setIntegrityRecordHash(String integrityRecordHash) { this.integrityRecordHash = integrityRecordHash; }
+    public String getIntegrityTransactionIdHash() { return integrityTransactionIdHash; }
+    public void setIntegrityTransactionIdHash(String integrityTransactionIdHash) { this.integrityTransactionIdHash = integrityTransactionIdHash; }
+    public String getIntegritySenderHash() { return integritySenderHash; }
+    public void setIntegritySenderHash(String integritySenderHash) { this.integritySenderHash = integritySenderHash; }
+    public String getIntegrityReceiverHash() { return integrityReceiverHash; }
+    public void setIntegrityReceiverHash(String integrityReceiverHash) { this.integrityReceiverHash = integrityReceiverHash; }
+    public String getIntegrityAmountHash() { return integrityAmountHash; }
+    public void setIntegrityAmountHash(String integrityAmountHash) { this.integrityAmountHash = integrityAmountHash; }
+    public String getIntegrityTimestampHash() { return integrityTimestampHash; }
+    public void setIntegrityTimestampHash(String integrityTimestampHash) { this.integrityTimestampHash = integrityTimestampHash; }
 }
 

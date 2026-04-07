@@ -2,6 +2,9 @@ package com.example.sable.blockchain;
 
 import com.example.sable.dto.GanacheBlockDto;
 import com.example.sable.dto.GanacheTxDto;
+import com.example.sable.dto.BlockchainVerificationDto;
+import com.example.sable.dto.TransactionIntegrityFindingDto;
+import com.example.sable.integrity.TransactionIntegritySnapshot;
 import com.example.sable.model.Transaction;
 import com.example.sable.service.TransactionService;
 import org.springframework.stereotype.Service;
@@ -16,7 +19,9 @@ import org.web3j.utils.Convert;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class BlockchainService {
@@ -129,6 +134,121 @@ public class BlockchainService {
         }
 
         return blocks;
+    }
+
+    public BlockchainVerificationDto verifyBlockchainAndDatabase(int blockLimit) throws Exception {
+        BlockchainVerificationDto result = new BlockchainVerificationDto();
+
+        // 1) Verify chain linkage for the returned segment of chain.
+        List<GanacheBlockDto> blocks = getRecentBlocks(blockLimit);
+        result.setBlocks(blocks);
+        result.setBlocksChecked(blocks.size());
+
+        boolean linkageOk = true;
+        // blocks are returned newest -> oldest. For i=0 (newest) parent should equal blocks[i+1].blockHash
+        for (int i = 0; i + 1 < blocks.size(); i++) {
+            GanacheBlockDto newer = blocks.get(i);
+            GanacheBlockDto older = blocks.get(i + 1);
+            String parent = newer.getPreviousBlockHash();
+            String olderHash = older.getBlockHash();
+            if (parent != null && olderHash != null && !parent.equalsIgnoreCase(olderHash)) {
+                linkageOk = false;
+                result.getWarnings().add("Blockchain linkage mismatch between block " + newer.getBlockNumber() + " and " + older.getBlockNumber());
+                break;
+            }
+        }
+        result.setChainLinkageValid(linkageOk);
+
+        // 2) Verify each DB transaction against (a) stored integrity snapshot and (b) on-chain tx data (when available).
+        List<Transaction> all = transactionService.getAllTransactions();
+        List<TransactionIntegrityFindingDto> findings = new ArrayList<>();
+        boolean tamperingDetected = !linkageOk;
+
+        for (Transaction tx : all) {
+            TransactionIntegrityFindingDto f = new TransactionIntegrityFindingDto();
+            f.setDbId(tx.getId());
+            f.setTransactionId(tx.getTransactionId());
+            f.setOnChain(tx.isOnChain());
+            f.setBlockchainTxHash(tx.getBlockchainTxHash());
+
+            // 2a) DB tamper detection using snapshot hashes (if present).
+            if (tx.getIntegrityRecordHash() == null ||
+                    tx.getIntegrityTransactionIdHash() == null ||
+                    tx.getIntegritySenderHash() == null ||
+                    tx.getIntegrityReceiverHash() == null ||
+                    tx.getIntegrityAmountHash() == null ||
+                    tx.getIntegrityTimestampHash() == null) {
+                f.setUnverifiable(true);
+                f.getIssues().add("UNVERIFIABLE_NO_INTEGRITY_SNAPSHOT");
+            } else {
+                var snap = TransactionIntegritySnapshot.compute(tx);
+                Set<String> tamperedFields = new HashSet<>();
+                if (!tx.getIntegrityTransactionIdHash().equalsIgnoreCase(snap.transactionIdHash())) tamperedFields.add("transactionId");
+                if (!tx.getIntegritySenderHash().equalsIgnoreCase(snap.senderHash())) tamperedFields.add("sender");
+                if (!tx.getIntegrityReceiverHash().equalsIgnoreCase(snap.receiverHash())) tamperedFields.add("receiver");
+                if (!tx.getIntegrityAmountHash().equalsIgnoreCase(snap.amountHash())) tamperedFields.add("amount");
+                if (!tx.getIntegrityTimestampHash().equalsIgnoreCase(snap.timestampHash())) tamperedFields.add("timestamp");
+                if (!tx.getIntegrityRecordHash().equalsIgnoreCase(snap.recordHash())) tamperedFields.add("recordHash");
+
+                if (!tamperedFields.isEmpty()) {
+                    f.setTampered(true);
+                    f.getIssues().add("DB_TAMPERING_DETECTED");
+                    f.getTamperedFields().addAll(tamperedFields);
+                }
+            }
+
+            // 2b) Cross-check DB receiver/amount vs on-chain tx (when we have a hash).
+            if (tx.isOnChain() && tx.getBlockchainTxHash() != null && !tx.getBlockchainTxHash().isBlank()) {
+                var resp = web3j.ethGetTransactionByHash(tx.getBlockchainTxHash()).send();
+                var onChainTx = resp.getTransaction().orElse(null);
+                if (onChainTx == null) {
+                    f.setTampered(true);
+                    f.getIssues().add("ONCHAIN_TX_MISSING");
+                } else {
+                    String onChainTo = onChainTx.getTo();
+                    if (onChainTo != null && tx.getReceiver() != null &&
+                            !onChainTo.equalsIgnoreCase(tx.getReceiver())) {
+                        f.setTampered(true);
+                        f.getIssues().add("RECEIVER_MISMATCH_ONCHAIN_VS_DB");
+                        if (!f.getTamperedFields().contains("receiver")) f.getTamperedFields().add("receiver");
+                    }
+
+                    BigInteger onChainWei = onChainTx.getValue();
+                    if (onChainWei != null && tx.getAmount() != null) {
+                        BigInteger dbWei;
+                        try {
+                            dbWei = Convert.toWei(BigDecimal.valueOf(tx.getAmount()), Convert.Unit.ETHER).toBigIntegerExact();
+                        } catch (ArithmeticException ex) {
+                            // If the amount has too many decimals for wei exactness, compare using BigDecimal.
+                            BigDecimal dbWeiBd = Convert.toWei(BigDecimal.valueOf(tx.getAmount()), Convert.Unit.ETHER);
+                            BigDecimal onChainWeiBd = new BigDecimal(onChainWei);
+                            if (dbWeiBd.compareTo(onChainWeiBd) != 0) {
+                                f.setTampered(true);
+                                f.getIssues().add("AMOUNT_MISMATCH_ONCHAIN_VS_DB");
+                                if (!f.getTamperedFields().contains("amount")) f.getTamperedFields().add("amount");
+                            }
+                            dbWei = null;
+                        }
+
+                        if (dbWei != null && !dbWei.equals(onChainWei)) {
+                            f.setTampered(true);
+                            f.getIssues().add("AMOUNT_MISMATCH_ONCHAIN_VS_DB");
+                            if (!f.getTamperedFields().contains("amount")) f.getTamperedFields().add("amount");
+                        }
+                    }
+                }
+            }
+
+            if (f.isTampered()) tamperingDetected = true;
+            findings.add(f);
+        }
+
+        result.setTransactionFindings(findings);
+        result.setTamperingDetected(tamperingDetected);
+        if (tamperingDetected) {
+            result.getWarnings().add("WARNING: Possible tampering detected. Review findings.");
+        }
+        return result;
     }
 }
 
