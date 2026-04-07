@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
 public class TransactionRequest {
-    @NotBlank(message = "Transaction ID must not be blank")
+    // Optional: if omitted/blank, backend auto-generates a unique transactionId.
     private String transactionId;
 
     @NotBlank(message = "Sender must not be blank")

@@ -90,28 +90,33 @@
             <input type="number" id="filter-maxAmount" placeholder="Max Amount" class="w-full p-2 bg-white/10 text-white">
 
             <button onclick="generateAuditReport()" class="glowing-button w-full">
-                Download CSV
+                Download Report
             </button>
 
         </div>
 
         <!-- Table -->
         <div class="mt-6 bg-white/10 p-6 rounded-xl border border-white/20">
+            <div class="text-white/70 text-sm mb-3">
+                Showing <span id="record-count">0</span> records
+            </div>
 
-            <table class="w-full text-white">
+            <div class="overflow-x-auto">
+            <table id="audit-table" class="w-full text-white table-fixed">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Sender</th>
-                        <th>Receiver</th>
-                        <th>Amount</th>
-                        <th>Block</th>
-                        <th>Status</th>
-                        <th>Date</th>
+                    <tr class="text-left text-white/80 border-b border-white/20">
+                        <th class="py-2 pr-3 w-[16%]">ID</th>
+                        <th class="py-2 pr-3 w-[18%]">Sender</th>
+                        <th class="py-2 pr-3 w-[18%]">Receiver</th>
+                        <th class="py-2 pr-3 w-[12%]">Amount</th>
+                        <th class="py-2 pr-3 w-[10%]">Block</th>
+                        <th class="py-2 pr-3 w-[12%]">Status</th>
+                        <th class="py-2 w-[14%]">Date</th>
                     </tr>
                 </thead>
-                <tbody id="audit-table"></tbody>
+                <tbody></tbody>
             </table>
+            </div>
 
         </div>
 
@@ -120,6 +125,7 @@
 </div>
 
 <script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
 <script>
 function showAuditSection(section) {

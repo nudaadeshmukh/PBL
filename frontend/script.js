@@ -1,20 +1,25 @@
 //PAGE NAVIGATION
 function showPage(pageId) {
     // Hide all pages
-    document.querySelectorAll(".page").forEach(page => {
-        page.classList.add("hidden");
-    });
+    const pages = document.querySelectorAll(".page");
+    if (!pages || pages.length === 0) return; // multi-page HTML (login/signup/dashboard)
+
+    pages.forEach(page => page.classList.add("hidden"));
 
     // Show selected page
-    document.getElementById(pageId).classList.remove("hidden");
+    const target = document.getElementById(pageId);
+    if (target) target.classList.remove("hidden");
 }
 // Default page
-showPage("landing-page");
+if (document.getElementById("landing-page")) {
+    showPage("landing-page");
+}
 
 // =========================
 // Backend API integration
 // =========================
-const API_BASE_URL = "http://localhost:8081";
+// Use `var` to avoid temporal-dead-zone issues across page scripts.
+var API_BASE_URL = "http://localhost:8081";
 
 function getAuthToken() {
     const user = getCurrentUser();
@@ -118,8 +123,8 @@ function handleSignup(e) {
             lastLogin: now
         });
         showToast(resp.message || "Registration successful");
-        loadDashboard();
-        showPage("dashboard-container");
+        // Multi-page app: redirect after signup.
+        window.location.href = "dashboard.html";
     }).catch((err) => {
         alert(`Registration failed: ${err.message}`);
     });
@@ -159,8 +164,8 @@ function handleLogin(e) {
         });
 
         showToast(resp.message || "Login successful");
-        loadDashboard();
-        showPage("dashboard-container");
+        // Always land on dashboard; dashboard adapts per role.
+        window.location.href = "dashboard.html";
     }).catch((err) => {
         errorBox.textContent = err.message || "Login failed";
         errorBox.classList.remove("hidden");
@@ -173,26 +178,40 @@ function loadDashboard() {
 
     if (!user) return;
 
-    document.getElementById("user-name").textContent = user.name;
-    document.getElementById("user-role").textContent = user.role;
-    document.getElementById("user-last-login").textContent =
-        user.lastLogin || "First Login";
+    const roleUpper = String(user.role || "").toUpperCase();
+    const roleDisplay = roleUpper === "ADMIN" ? "Admin" : roleUpper === "AUDITOR" ? "Auditor" : (user.role || "");
 
-    document.getElementById("user-avatar").textContent =
-        user.name.charAt(0).toUpperCase();
+    // Guard: these elements don't exist on every page.
+    const userName = document.getElementById("user-name");
+    const userRole = document.getElementById("user-role");
+    const userLastLogin = document.getElementById("user-last-login");
+    const userAvatar = document.getElementById("user-avatar");
+    const profileName = document.getElementById("profile-name");
+    const profileRole = document.getElementById("profile-role");
+    const profileAvatar = document.getElementById("profile-avatar");
+    const profileInfo = document.getElementById("profile-info");
 
-    document.getElementById("profile-name").textContent = user.name;
-    document.getElementById("profile-role").textContent = user.role;
+    if (userName) userName.textContent = user.name;
+    if (userRole) userRole.textContent = roleDisplay;
+    if (userLastLogin) userLastLogin.textContent = user.lastLogin || "First Login";
+    if (userAvatar) userAvatar.textContent = (user.name || "?").charAt(0).toUpperCase();
+    if (profileName) profileName.textContent = user.name;
+    if (profileRole) profileRole.textContent = user.role;
+    if (profileAvatar) profileAvatar.textContent = (user.name || "?").charAt(0).toUpperCase();
+    if (profileInfo) {
+        profileInfo.innerHTML = `
+            <p><b>Email:</b> ${user.email}</p>
+            <p><b>Employee ID:</b> ${user.empId}</p>
+            <p><b>Role:</b> ${user.role}</p>
+        `;
+    }
+    // Sidebar menu: hide irrelevant panels.
+    const adminMenu = document.getElementById("menu-admin");
+    const auditMenu = document.getElementById("menu-audit");
+    if (adminMenu) adminMenu.style.display = roleUpper === "ADMIN" ? "" : "none";
+    if (auditMenu) auditMenu.style.display = roleUpper === "AUDITOR" ? "" : "none";
 
-    document.getElementById("profile-avatar").textContent =
-        user.name.charAt(0).toUpperCase();
-
-    document.getElementById("profile-info").innerHTML = `
-        <p><b>Email:</b> ${user.email}</p>
-        <p><b>Employee ID:</b> ${user.empId}</p>
-        <p><b>Role:</b> ${user.role}</p>
-    `;
-    refreshDashboard();
+    // Dashboard stats are loaded on dashboard page load; don't force refresh on every page.
 }
 
 
@@ -200,7 +219,15 @@ function loadDashboard() {
 
 function handleLogout() {
     clearCurrentUser();
-    showPage("landing-page");
+    // Clear any legacy session keys (older multi-page versions used sessionStorage).
+    try { sessionStorage.removeItem("blast_current_user"); } catch (e) {}
+    try { sessionStorage.removeItem("currentUser"); } catch (e) {}
+    try { localStorage.removeItem("blast_current_user"); } catch (e) {}
+    try { localStorage.removeItem("currentUser"); } catch (e) {}
+
+    // Prevent back-navigation into protected pages: replace current history entry.
+    try { history.replaceState(null, "", "index.html"); } catch (e) {}
+    window.location.replace("index.html");
 }
 
 //DASHBOARD NAVIGATION
@@ -269,14 +296,40 @@ function handleChangePassword(e) {
 }
 
 
-//AUTO LOGIN (ON REFRESH)
+// AUTO LOAD + ROUTE GUARD
+function isPublicPage() {
+    const p = (window.location.pathname || "").toLowerCase();
+    const href = (window.location.href || "").toLowerCase();
+    return (
+        href.includes("index.html") || href.includes("login.html") || href.includes("signup.html") ||
+        p.endsWith("/index.html") || p.endsWith("/login.html") || p.endsWith("/signup.html") ||
+        p === "/" || p === ""
+    );
+}
+
+function currentPageName() {
+    const p = (window.location.pathname || "").toLowerCase();
+    const last = p.split("/").pop() || "";
+    return last || "index.html";
+}
+
 window.onload = function () {
+    const user = getCurrentUser();
 
-    let user = getCurrentUser();
+    // If logged out, block access to protected pages (also handles browser Back after logout).
+    if (!user && !isPublicPage()) {
+        window.location.replace("index.html");
+        return;
+    }
 
-    if (user) {
-        loadDashboard();
-        showPage("dashboard-container");
+    if (!user) return;
+
+    // Hydrate shared UI on every protected page.
+    loadDashboard();
+
+    const page = currentPageName();
+    if (page.includes("dashboard.html")) {
+        refreshDashboard();
     }
 };
 /***********************
@@ -309,31 +362,55 @@ function getBlockchainStatus() {
  LOAD DASHBOARD
 ************************/
 
-function loadDashboardStats() {
+async function loadDashboardStats() {
 
     const statsGrid = document.getElementById("stats-grid");
+    if (!statsGrid) return;
+
+    const user = getCurrentUser();
+    const roleUpper = String(user?.role || "").toUpperCase();
+    let blocks = [];
+    try {
+        blocks = await apiRequest("/api/blockchain/blocks?limit=50", { auth: true });
+        if (!Array.isArray(blocks)) blocks = [];
+    } catch (e) {
+        blocks = [];
+    }
+    const totalBlocks = blocks.length;
+    const totalTx = blocks.reduce((sum, b) => sum + (Array.isArray(b.transactions) ? b.transactions.length : 0), 0);
+
+    // Auditor gets a tampering status snapshot.
+    let auditStatus = null;
+    let lastVerifiedAt = null;
+    try { lastVerifiedAt = localStorage.getItem("lastVerifiedAt"); } catch (e) {}
+
+    if (roleUpper === "AUDITOR") {
+        try {
+            const verification = await apiRequest("/api/blockchain/verify?blockLimit=20", { auth: true });
+            auditStatus = verification?.tamperingDetected ? "Tampering Detected" : "No Tampering";
+            lastVerifiedAt = new Date().toLocaleString();
+            try { localStorage.setItem("lastVerifiedAt", lastVerifiedAt); } catch (e) {}
+        } catch (e) {
+            auditStatus = "Verify failed";
+        }
+    }
 
     const stats = [
         {
-            title: "Total Transactions",
-            value: getTotalTransactions(),
+            title: "Blockchain Transactions",
+            value: totalTx,
             color: "from-blue-500 to-cyan-500"
         },
         {
-            title: "Total Blocks",
-            value: blockchain.length,
-            color: "from-purple-500 to-pink-500"
-        },
-        {
-            title: "Blockchain Status",
-            value: getBlockchainStatus(),
-            color: getBlockchainStatus() === "Valid"
-                ? "from-green-500 to-emerald-500"
-                : "from-red-500 to-orange-500"
+            title: roleUpper === "AUDITOR" ? "Audit Status" : "Backend Status",
+            value: roleUpper === "AUDITOR" ? (auditStatus || "—") : "Connected",
+            color: (roleUpper === "AUDITOR" && auditStatus === "Tampering Detected")
+                ? "from-red-500 to-orange-500"
+                : "from-green-500 to-emerald-500"
         },
         {
             title: "Last Verified",
-            value: lastVerified || "Not verified yet",
+            value: lastVerifiedAt || "Not verified yet",
             color: "from-yellow-500 to-orange-500"
         }
     ];
@@ -353,8 +430,8 @@ function loadDashboardStats() {
         `;
     });
 
-    document.getElementById("last-backup").textContent =
-        new Date().toLocaleDateString();
+    const lastBackup = document.getElementById("last-backup");
+    if (lastBackup) lastBackup.textContent = new Date().toLocaleDateString();
 }
 
 
@@ -362,37 +439,41 @@ function loadDashboardStats() {
  LOAD RECENT BLOCKS
 ************************/
 
-function loadRecentBlocks() {
+async function loadRecentBlocks() {
 
     const container = document.getElementById("recent-blocks");
+    if (!container) return;
 
     container.innerHTML = "";
 
-    const recent = blockchain.slice(-5).reverse();
+    let txs = [];
+    try {
+        txs = await apiRequest("/api/transactions", { auth: true });
+        if (!Array.isArray(txs)) txs = [];
+    } catch (e) {
+        txs = [];
+    }
 
-    if (recent.length === 1 && recent[0].transactions.length === 0) {
-        container.innerHTML =
-            `<div class="text-center text-white/50 py-6">
-                No transactions yet. Add your first transaction!
-             </div>`;
+    const recent = txs.slice(-5).reverse();
+    if (recent.length === 0) {
+        container.innerHTML = `<div class="text-center text-white/50 py-6">No transactions yet.</div>`;
         return;
     }
 
-    recent.forEach(block => {
-
+    recent.forEach(tx => {
+        const when = tx.timestamp ? new Date(tx.timestamp).toLocaleString() : "";
         container.innerHTML += `
             <div class="flex justify-between items-center p-4 bg-white/5 rounded-lg border border-white/10">
                 <div>
                     <div class="text-white font-medium">
-                        Block #${block.blockNumber}
+                        ${tx.transactionId ? tx.transactionId.substring(0, 12) + "..." : "Transaction"}
                     </div>
                     <div class="text-sm text-white/70">
-                        ${block.transactions.length} transaction(s)
+                        ${tx.sender || ""} → ${tx.receiver || ""} • ${Number(tx.amount || 0).toFixed(4)} ETH
                     </div>
                 </div>
-
                 <div class="text-right text-sm text-white/70">
-                    ${new Date(block.timestamp).toLocaleString()}
+                    ${when}
                 </div>
             </div>
         `;
@@ -405,6 +486,7 @@ function loadRecentBlocks() {
 ************************/
 
 function refreshDashboard() {
+    // Async functions; no need to await for UI to paint.
     loadDashboardStats();
     loadRecentBlocks();
 }
@@ -415,7 +497,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (form) {
 
-        form.addEventListener("submit", function (e) {
+        form.addEventListener("submit", async function (e) {
 
             e.preventDefault();
 
@@ -424,8 +506,15 @@ document.addEventListener("DOMContentLoaded", function () {
             let amount = parseFloat(document.getElementById("amount").value);
             let description = document.getElementById("description").value.trim();
 
-            if (!sender || !receiver || !amount || !description) {
-                alert("All fields are required!");
+            const user = getCurrentUser();
+            if (!user?.token) {
+                alert("Please login first.");
+                window.location.replace("login.html");
+                return;
+            }
+
+            if (!sender || !receiver || !amount) {
+                alert("Sender, receiver and amount are required!");
                 return;
             }
 
@@ -445,6 +534,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 description,
                 timestamp
             };
+
+            // Persist transaction to backend DB (ADMIN only).
+            try {
+                await apiRequest("/api/transactions", {
+                    method: "POST",
+                    auth: true,
+                    body: {
+                        transactionId: transaction.id,
+                        sender: transaction.sender,
+                        receiver: transaction.receiver,
+                        amount: transaction.amount
+                    }
+                });
+            } catch (err) {
+                alert(`Failed to add transaction to DB: ${err.message}`);
+                return;
+            }
 
             // Get previous block
             let previousBlock = blockchain[blockchain.length - 1];
@@ -478,7 +584,7 @@ document.addEventListener("DOMContentLoaded", function () {
             resultDiv.innerHTML = `
                 <div>
                     <h3 style="color:#22c55e;">✓ Transaction Successful</h3>
-                    <p style="color:#22c55e; font-size:14px;">Added to blockchain</p>
+                    <p style="color:#22c55e; font-size:14px;">Saved to DB and added to blockchain</p>
                     <hr style="margin:15px 0; opacity:0.2;">
 
                     <div>
@@ -500,7 +606,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div>
                         <b>From:</b> ${sender}<br>
                         <b>To:</b> ${receiver}<br>
-                        <b>Amount:</b> $${amount.toFixed(2)}
+                        <b>Amount:</b> ${amount.toFixed(4)} ETH
                     </div>
 
                     <br>
@@ -522,110 +628,62 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-function renderBlockchain() {
-
+async function loadLedger() {
     const container = document.getElementById("ledger-blocks");
-    container.innerHTML = "";
+    if (!container) return;
+    container.innerHTML = `<div class="text-white/70">Loading blockchain blocks...</div>`;
 
-    if (blockchain.length === 1 && blockchain[0].transactions.length === 0) {
-        container.innerHTML = `
-            <div class="genesis-box">
-                Only Genesis Block exists.<br>
-                Add transactions to create new blocks!
-            </div>
-        `;
+    let blocks = [];
+    try {
+        blocks = await apiRequest("/api/blockchain/blocks?limit=100", { auth: true });
+        if (!Array.isArray(blocks)) blocks = [];
+    } catch (err) {
+        container.innerHTML = `<div class="text-red-300">Failed to load blockchain blocks: ${err.message}</div>`;
         return;
     }
 
-    blockchain.forEach((block, index) => {
+    if (blocks.length === 0) {
+        container.innerHTML = `<div class="text-white/60">No blocks available on blockchain.</div>`;
+        return;
+    }
 
-        let blockHTML = `
-            <div class="block-card">
+    container.innerHTML = "";
+    blocks.forEach((block) => {
+        const ts = block.timestampMs ? new Date(block.timestampMs).toLocaleString() : "N/A";
+        const txs = Array.isArray(block.transactions) ? block.transactions : [];
 
-                <div class="block-header">
+        let txHtml = `<div class="text-white/60 text-sm">No transactions in this block.</div>`;
+        if (txs.length > 0) {
+            txHtml = txs.map((tx) => `
+                <div class="p-3 rounded-lg bg-white/5 border border-white/10 mb-2">
+                    <div class="text-sm text-white"><b>Sender:</b> ${tx.senderAddress || "-"}</div>
+                    <div class="text-sm text-white"><b>Receiver:</b> ${tx.receiverAddress || "-"}</div>
+                    <div class="text-sm text-emerald-300"><b>Amount:</b> ${tx.amountEth || "0"} ETH</div>
+                    <div class="text-xs text-white/60 break-all"><b>Tx Hash:</b> ${tx.txHash || "-"}</div>
+                </div>
+            `).join("");
+        }
+
+        container.innerHTML += `
+            <div class="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/20">
+                <div class="flex justify-between items-start gap-4 mb-3">
                     <div>
-                        <div class="block-title">Block #${block.blockNumber}</div>
-                        <div style="font-size:13px; opacity:0.7;">
-                            ${block.transactions.length} transaction(s)
-                        </div>
+                        <div class="text-white text-lg font-semibold">Block #${block.blockNumber}</div>
+                        <div class="text-white/70 text-sm">${txs.length} transaction(s)</div>
                     </div>
-                    <div style="font-size:13px;">
-                        ${new Date(block.timestamp).toLocaleString()}
-                    </div>
+                    <div class="text-white/70 text-sm text-right">${ts}</div>
                 </div>
-
-                <div class="block-content">
-
-                    <div style="margin-bottom:15px;">
-                        <div style="opacity:0.6;">Previous Hash</div>
-                        <div class="hash-box hash-previous">
-                            ${block.previousHash === "0" ? "Genesis Block" : block.previousHash}
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom:15px;">
-                        <div style="opacity:0.6;">Current Hash</div>
-                        <div class="hash-box hash-current">
-                            ${block.currentHash}
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom:15px;">
-                        <div style="opacity:0.6;">Nonce</div>
-                        <div class="hash-box" style="color:#60a5fa;">
-                            ${block.nonce}
-                        </div>
-                    </div>
+                <div class="text-xs text-white/60 break-all mb-1"><b>Block Hash:</b> ${block.blockHash || "-"}</div>
+                <div class="text-xs text-white/60 break-all mb-3"><b>Parent Hash:</b> ${block.previousBlockHash || "-"}</div>
+                ${txHtml}
+            </div>
         `;
-
-        // Transactions
-        if (block.transactions.length > 0) {
-
-            block.transactions.forEach((tx, txIndex) => {
-
-                blockHTML += `
-                    <div class="transaction-item" onclick="toggleTransaction(this)">
-                        <div class="transaction-header">
-                            <div>
-                                <strong>${tx.id.substring(0,16)}...</strong><br>
-                                <small>${tx.sender} → ${tx.receiver}</small>
-                            </div>
-                            <div style="color:#22c55e;">
-                                $${tx.amount.toFixed(2)}
-                            </div>
-                        </div>
-
-                        <div class="transaction-details">
-                            <p><b>Sender:</b> ${tx.sender}</p>
-                            <p><b>Receiver:</b> ${tx.receiver}</p>
-                            <p><b>Description:</b> ${tx.description}</p>
-                            <p><b>Timestamp:</b> ${new Date(tx.timestamp).toLocaleString()}</p>
-                            <p style="font-size:12px; word-break:break-all;">
-                                <b>ID:</b> ${tx.id}
-                            </p>
-                        </div>
-                    </div>
-                `;
-            });
-
-        } else {
-            blockHTML += `
-                <div class="genesis-box">
-                    Genesis Block - No Transactions
-                </div>
-            `;
-        }
-
-        blockHTML += `</div></div>`;
-
-        // Add arrow if not last block
-        if (index < blockchain.length - 1) {
-            blockHTML += `<div class="arrow-connector">↓</div>`;
-        }
-
-        container.innerHTML += blockHTML;
-
     });
+}
+
+// Backward compatibility: existing calls render the ledger.
+function renderBlockchain() {
+    loadLedger();
 }
 
 
@@ -676,49 +734,57 @@ function applyAuditFilters() {
 }
 
 function renderAuditTable(data) {
-
+    // Support both structures:
+    // 1) <table id="audit-table"><tbody>...</tbody></table>
+    // 2) <tbody id="audit-table"></tbody>
+    const table = document.getElementById("audit-table");
     let tbody = document.querySelector("#audit-table tbody");
-    let noRecords = document.getElementById("no-records");
-    let summaryCard = document.getElementById("summary-card");
+    if (!tbody && table && table.tagName.toLowerCase() === "tbody") {
+        tbody = table;
+    }
+    if (!tbody) return;
+
+    const recordCount = document.getElementById("record-count");
+    const noRecords = document.getElementById("no-records");
+    const summaryCard = document.getElementById("summary-card");
 
     tbody.innerHTML = "";
-
-    document.getElementById("record-count").textContent = data.length;
+    if (recordCount) recordCount.textContent = data.length;
 
     if (data.length === 0) {
-        noRecords.classList.remove("hidden");
-        summaryCard.classList.add("hidden");
+        if (noRecords) noRecords.classList.remove("hidden");
+        if (summaryCard) summaryCard.classList.add("hidden");
         return;
     }
 
-    noRecords.classList.add("hidden");
+    if (noRecords) noRecords.classList.add("hidden");
 
     data.forEach(tx => {
         tbody.innerHTML += `
-            <tr>
-                <td>${tx.id.substring(0,12)}...</td>
-                <td>${tx.sender}</td>
-                <td>${tx.receiver}</td>
-                <td class="green">$${tx.amount.toFixed(2)}</td>
-                <td>${tx.blockNumber}</td>
-                <td class="green">Valid</td>
-                <td>${new Date(tx.timestamp).toLocaleDateString()}</td>
+            <tr class="border-b border-white/10">
+                <td class="py-2 pr-3 whitespace-nowrap">${tx.id.substring(0,12)}...</td>
+                <td class="py-2 pr-3">${tx.sender}</td>
+                <td class="py-2 pr-3">${tx.receiver}</td>
+                <td class="py-2 pr-3 text-green-300 whitespace-nowrap">$${tx.amount.toFixed(2)}</td>
+                <td class="py-2 pr-3 whitespace-nowrap">${tx.blockNumber}</td>
+                <td class="py-2 pr-3 text-green-300 whitespace-nowrap">Valid</td>
+                <td class="py-2 whitespace-nowrap">${new Date(tx.timestamp).toLocaleDateString()}</td>
             </tr>
         `;
     });
 
-    // Summary
-    summaryCard.classList.remove("hidden");
-
-    let totalVolume = data.reduce((sum, tx) => sum + tx.amount, 0);
-
-    document.getElementById("sum-total").textContent = data.length;
-    document.getElementById("sum-volume").textContent = "$" + totalVolume.toFixed(2);
-    document.getElementById("sum-average").textContent =
-        "$" + (totalVolume / data.length).toFixed(2);
-
-    document.getElementById("sum-blocks").textContent =
-        new Set(data.map(tx => tx.blockNumber)).size;
+    if (summaryCard) {
+        summaryCard.classList.remove("hidden");
+        const totalVolume = data.reduce((sum, tx) => sum + tx.amount, 0);
+        const sumTotal = document.getElementById("sum-total");
+        const sumVolume = document.getElementById("sum-volume");
+        const sumAverage = document.getElementById("sum-average");
+        const sumBlocks = document.getElementById("sum-blocks");
+        if (sumTotal) sumTotal.textContent = data.length;
+        if (sumVolume) sumVolume.textContent = "$" + totalVolume.toFixed(2);
+        if (sumAverage) sumAverage.textContent = "$" + (totalVolume / data.length).toFixed(2);
+        if (sumBlocks) sumBlocks.textContent = new Set(data.map(tx => tx.blockNumber)).size;
+    }
 }
 
 function generateAuditReport() {
@@ -732,8 +798,9 @@ function generateAuditReport() {
 
     Promise.all([
         apiRequest("/api/transactions", { auth: true }),
-        apiRequest("/api/blockchain/verify?blockLimit=50", { auth: true })
-    ]).then(([dbTxs, verification]) => {
+        apiRequest("/api/blockchain/verify?blockLimit=50", { auth: true }),
+        apiRequest("/api/blockchain/blocks?limit=50", { auth: true })
+    ]).then(([dbTxs, verification, blockchainBlocks]) => {
         if (!Array.isArray(dbTxs) || dbTxs.length === 0) {
             alert("No transactions available");
             return;
@@ -742,84 +809,139 @@ function generateAuditReport() {
         const findingsByTxId = new Map(
             (verification?.transactionFindings || []).map(f => [f.transactionId, f])
         );
+        if (typeof XLSX === "undefined") {
+            alert("Excel export library failed to load. Please refresh and try again.");
+            return;
+        }
 
-        let csv = [
-            "Transaction ID,DB ID,Sender,Receiver,Amount,Timestamp,OnChain,Blockchain Tx Hash,Tampered,Unverifiable,Tampered Fields,Issues"
-        ];
+        // Apply the same on-screen report filters to export content.
+        const dateFrom = document.getElementById("filter-dateFrom")?.value || "";
+        const dateTo = document.getElementById("filter-dateTo")?.value || "";
+        const account = (document.getElementById("filter-account")?.value || "").trim();
+        const minAmount = document.getElementById("filter-minAmount")?.value || "";
+        const maxAmount = document.getElementById("filter-maxAmount")?.value || "";
 
-        dbTxs.forEach(tx => {
-            const f = findingsByTxId.get(tx.transactionId) || null;
-            const tampered = f ? !!f.tampered : false;
-            const unverifiable = f ? !!f.unverifiable : false;
-            const tamperedFields = f?.tamperedFields?.length ? f.tamperedFields.join("|") : "";
-            const issues = f?.issues?.length ? f.issues.join("|") : "";
-
-            csv.push([
-                tx.transactionId,
-                tx.id ?? "",
-                (tx.sender ?? "").replaceAll(",", " "),
-                (tx.receiver ?? "").replaceAll(",", " "),
-                tx.amount ?? "",
-                tx.timestamp ? new Date(tx.timestamp).toLocaleString() : "",
-                tx.onChain ?? false,
-                tx.blockchainTxHash ?? "",
-                tampered,
-                unverifiable,
-                tamperedFields,
-                issues
-            ].join(","));
+        const filteredDbTxs = dbTxs.filter(tx => {
+            const txDate = tx.timestamp ? new Date(tx.timestamp) : null;
+            if (dateFrom && txDate && txDate < new Date(dateFrom)) return false;
+            if (dateTo && txDate && txDate > new Date(dateTo)) return false;
+            if (account && !(String(tx.sender || "").includes(account) || String(tx.receiver || "").includes(account))) return false;
+            if (minAmount && Number(tx.amount || 0) < parseFloat(minAmount)) return false;
+            if (maxAmount && Number(tx.amount || 0) > parseFloat(maxAmount)) return false;
+            return true;
         });
 
-        // Append blockchain transactions (Ganache) for the auditor report.
-        csv.push("");
-        csv.push("BLOCKCHAIN TRANSACTIONS");
-        csv.push("Block Number,Block Hash,Parent Hash,Block Timestamp,Tx Hash,From,To,Amount (ETH),Amount (WEI)");
+        const txRows = filteredDbTxs.map(tx => {
+            const f = findingsByTxId.get(tx.transactionId) || null;
+            const tampered = f ? !!f.tampered : false;
+            const tamperedFields = f?.tamperedFields?.join("|") || "";
+            const issues = f?.issues?.join("|") || "";
+            return {
+                "Transaction ID": tx.transactionId ?? "",
+                "DB ID": tx.id ?? "",
+                "Sender": tx.sender ?? "",
+                "Receiver": tx.receiver ?? "",
+                "Amount": tx.amount ?? "",
+                "Timestamp": tx.timestamp ? new Date(tx.timestamp).toLocaleString() : "",
+                "OnChain": tx.onChain ?? false,
+                "Blockchain Tx Hash": tx.blockchainTxHash ?? "",
+                "Tampered": tampered,
+                // Highlight tampering in Excel with an explicit alert marker.
+                "Tampering Alert": tampered ? "!!! TAMPERING DETECTED !!!" : "",
+                "Tampered Fields": tampered ? `>> ${tamperedFields} <<` : "",
+                "Issues": issues
+            };
+        });
 
-        (verification?.blocks || []).forEach(b => {
+        const tamperedCount = txRows.filter(r => r["Tampered"] === true).length;
+
+        const blockchainRows = [];
+        (Array.isArray(blockchainBlocks) ? blockchainBlocks : []).forEach(b => {
             const blockTs = b.timestampMs ? new Date(b.timestampMs).toLocaleString() : "";
             const txs = Array.isArray(b.transactions) ? b.transactions : [];
             if (txs.length === 0) {
-                csv.push([
-                    b.blockNumber ?? "",
-                    b.blockHash ?? "",
-                    b.previousBlockHash ?? "",
-                    blockTs,
-                    "",
-                    "",
-                    "",
-                    "",
-                    ""
-                ].join(","));
+                blockchainRows.push({
+                    "Block Number": b.blockNumber ?? "",
+                    "Block Hash": b.blockHash ?? "",
+                    "Parent Hash": b.previousBlockHash ?? "",
+                    "Block Timestamp": blockTs,
+                    "Tx Hash": "",
+                    "From": "",
+                    "To": "",
+                    "Amount (ETH)": "",
+                    "Amount (WEI)": ""
+                });
                 return;
             }
-
             txs.forEach(t => {
-                csv.push([
-                    b.blockNumber ?? "",
-                    t.txHash ?? b.blockHash ?? "",
-                    b.previousBlockHash ?? "",
-                    blockTs,
-                    t.txHash ?? "",
-                    (t.senderAddress ?? "").replaceAll(",", " "),
-                    (t.receiverAddress ?? "").replaceAll(",", " "),
-                    t.amountEth ?? "",
-                    t.amountWei ?? ""
-                ].join(","));
+                blockchainRows.push({
+                    "Block Number": b.blockNumber ?? "",
+                    "Block Hash": b.blockHash ?? "",
+                    "Parent Hash": b.previousBlockHash ?? "",
+                    "Block Timestamp": blockTs,
+                    "Tx Hash": t.txHash ?? "",
+                    "From": t.senderAddress ?? "",
+                    "To": t.receiverAddress ?? "",
+                    "Amount (ETH)": t.amountEth ?? "",
+                    "Amount (WEI)": t.amountWei ?? ""
+                });
             });
         });
 
-        let blob = new Blob([csv.join("\n")], { type: "text/csv" });
-        let url = URL.createObjectURL(blob);
+        const summaryRows = [
+            { Metric: "Generated At", Value: new Date().toLocaleString() },
+            { Metric: "Verification Tampering Detected", Value: verification?.tamperingDetected ? "Yes" : "No" },
+            { Metric: "Chain Linkage Valid", Value: verification?.chainLinkageValid ? "Yes" : "No" },
+            { Metric: "DB Transactions (rows)", Value: txRows.length },
+            { Metric: "Tampered DB Transactions", Value: tamperedCount },
+            { Metric: "Filters Applied", Value: dateFrom || dateTo || account || minAmount || maxAmount ? "Yes" : "No" },
+            { Metric: "Filter Date Range", Value: (dateFrom || dateTo) ? `${dateFrom || "Any"} -> ${dateTo || "Any"}` : "Any" },
+            { Metric: "Filter Account", Value: account || "Any" },
+            { Metric: "Filter Amount Range", Value: (minAmount || maxAmount) ? `${minAmount || "Any"} -> ${maxAmount || "Any"}` : "Any" },
+            { Metric: "Blockchain Transactions (rows)", Value: blockchainRows.length },
+            { Metric: "Blockchain Blocks (fetched)", Value: Array.isArray(blockchainBlocks) ? blockchainBlocks.length : 0 }
+        ];
 
-        let a = document.createElement("a");
-        a.href = url;
-        a.download = "audit-report.csv";
-        a.click();
+        const wb = XLSX.utils.book_new();
+        const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
+        XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
+        const wsTx = XLSX.utils.json_to_sheet(txRows);
+        // Excel visual highlight for tampered rows/cells (light red fill).
+        if (txRows.length > 0) {
+            const headers = Object.keys(txRows[0]);
+            const tamperedColIdx = headers.indexOf("Tampered");
+            const alertColIdx = headers.indexOf("Tampering Alert");
+            if (tamperedColIdx >= 0 && alertColIdx >= 0) {
+                for (let i = 0; i < txRows.length; i++) {
+                    if (txRows[i]["Tampered"] !== true) continue;
+                    const excelRow = i + 2; // row 1 is header
+                    const alertCell = XLSX.utils.encode_cell({ r: excelRow - 1, c: alertColIdx });
+                    const tamperedCell = XLSX.utils.encode_cell({ r: excelRow - 1, c: tamperedColIdx });
+
+                    if (wsTx[alertCell]) {
+                        wsTx[alertCell].s = {
+                            fill: { patternType: "solid", fgColor: { rgb: "FFF4CCCC" } }, // light red
+                            font: { bold: true, color: { rgb: "FF9C0006" } }
+                        };
+                    }
+                    if (wsTx[tamperedCell]) {
+                        wsTx[tamperedCell].s = {
+                            fill: { patternType: "solid", fgColor: { rgb: "FFFCE4D6" } }, // very light red/orange
+                            font: { bold: true, color: { rgb: "FF9C0006" } }
+                        };
+                    }
+                }
+            }
+        }
+        XLSX.utils.book_append_sheet(wb, wsTx, "Transaction Findings");
+        const wsChain = XLSX.utils.json_to_sheet(blockchainRows.length ? blockchainRows : [{}]);
+        XLSX.utils.book_append_sheet(wb, wsChain, "Blockchain Transactions");
+        XLSX.writeFile(wb, "audit-report.xlsx");
 
         if (verification?.tamperingDetected) {
-            showToast("Warning: Tampering detected. Included in audit report.");
+            showToast("Warning: Tampering detected. Included in Excel report.");
         } else {
-            showToast("Audit report downloaded");
+            showToast("Excel audit report downloaded");
         }
     }).catch((err) => {
         alert(`Failed to generate audit report: ${err.message}`);

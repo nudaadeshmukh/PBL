@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TransactionService {
@@ -23,16 +24,17 @@ public class TransactionService {
 
     @Transactional
     public Transaction createTransaction(TransactionRequest request) {
-        if (transactionRepository.findByTransactionId(request.getTransactionId()).isPresent()) {
+        String transactionId = normalizeTransactionId(request.getTransactionId());
+        if (transactionRepository.findByTransactionId(transactionId).isPresent()) {
             throw new DuplicateTransactionException(
-                    "Transaction already exists with transactionId: " + request.getTransactionId());
+                    "Transaction already exists with transactionId: " + transactionId);
         }
         if (request.getAmount() == null || request.getAmount() <= 0) {
             throw new IllegalArgumentException("Amount must be greater than 0");
         }
 
         Transaction transaction = new Transaction(
-                request.getTransactionId(),
+                transactionId,
                 request.getSender(),
                 request.getReceiver(),
                 request.getAmount(),
@@ -49,6 +51,13 @@ public class TransactionService {
         transaction.setIntegrityTimestampHash(snap.timestampHash());
 
         return transactionRepository.save(transaction);
+    }
+
+    private String normalizeTransactionId(String incoming) {
+        if (incoming != null && !incoming.trim().isEmpty()) {
+            return incoming.trim();
+        }
+        return "tx-" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
 
     @Transactional(readOnly = true)
