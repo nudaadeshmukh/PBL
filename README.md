@@ -204,7 +204,7 @@ CREATE DATABASE sable_db;
 Open `backend/src/main/resources/application.properties` and update:
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/sable_db
+spring.datasource.url=jdbc:mysql://localhost:3306/blast_db
 spring.datasource.username=YOUR_MYSQL_USERNAME
 spring.datasource.password=YOUR_MYSQL_PASSWORD
 
@@ -289,8 +289,8 @@ npx serve .
 |---|---|---|---|
 | `GET` | `/api/transactions/test` | Public | Health check |
 | `POST` | `/api/transactions` | ADMIN | Create a new transaction |
-| `GET` | `/api/transactions` | ADMIN, AUDITOR, USER | Get all transactions |
-| `GET` | `/api/transactions/{transactionId}` | ADMIN, AUDITOR, USER | Get by transaction ID |
+| `GET` | `/api/transactions` | ADMIN, AUDITOR | Get all transactions |
+| `GET` | `/api/transactions/{transactionId}` | ADMIN, AUDITOR | Get by transaction ID |
 
 **Create Transaction — Request Body:**
 ```json
@@ -323,14 +323,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 ## 🔐 Roles & Permissions
 
-|           Action          | ADMIN | AUDITOR | USER |
-|---------------------------|:-----:|:-------:|:----:|
-| Register / Login          |  ✅  |    ✅   |  ✅ |
-| View transactions         |  ✅  |    ✅   |  ✅ |
-| Create transaction        |  ✅  |    ❌   |  ❌ |
-| Sync to blockchain        |  ✅  |    ❌   |  ❌ |
-| Send transaction on-chain |  ✅  |    ❌   |  ❌ |
-| View blockchain data      |  ✅  |    ✅   |  ❌ |
+|           Action          | ADMIN | AUDITOR |
+|---------------------------|:-----:|:-------:|
+| Register / Login          |  ✅  |    ✅   |
+| View transactions         |  ✅  |    ✅   |
+| Create transaction        |  ✅  |    ❌   |
+| Sync to blockchain        |  ✅  |    ❌   |
+| Send transaction on-chain |  ✅  |    ❌   |
+| View blockchain data      |  ✅  |    ✅   |
 
 ---
 
