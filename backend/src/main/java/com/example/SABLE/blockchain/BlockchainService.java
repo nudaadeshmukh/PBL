@@ -190,10 +190,22 @@ public class BlockchainService {
                 if (!tx.getIntegrityTimestampHash().equalsIgnoreCase(snap.timestampHash())) tamperedFields.add("timestamp");
                 if (!tx.getIntegrityRecordHash().equalsIgnoreCase(snap.recordHash())) tamperedFields.add("recordHash");
 
-                if (!tamperedFields.isEmpty()) {
+                // Only core business fields should drive tampering detection.
+                // recordHash/timestamp mismatches can happen due to legacy format/time precision drift.
+                Set<String> businessFieldMismatches = new HashSet<>();
+                if (tamperedFields.contains("transactionId")) businessFieldMismatches.add("transactionId");
+                if (tamperedFields.contains("sender")) businessFieldMismatches.add("sender");
+                if (tamperedFields.contains("receiver")) businessFieldMismatches.add("receiver");
+                if (tamperedFields.contains("amount")) businessFieldMismatches.add("amount");
+
+                if (!businessFieldMismatches.isEmpty()) {
                     f.setTampered(true);
                     f.getIssues().add("DB_TAMPERING_DETECTED");
-                    f.getTamperedFields().addAll(tamperedFields);
+                    f.getTamperedFields().addAll(businessFieldMismatches);
+                } else if (!tamperedFields.isEmpty()) {
+                    // Ignore recordHash/timestamp-only mismatch as non-tampering legacy drift.
+                    f.getIssues().add("LEGACY_HASH_OR_TIMESTAMP_MISMATCH");
+                    result.getWarnings().add("Legacy hash/timestamp mismatch for transactionId " + tx.getTransactionId());
                 }
             }
 

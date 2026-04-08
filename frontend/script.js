@@ -1074,53 +1074,7 @@ function loadProfile() {
         user.name.charAt(0).toUpperCase();
 
     renderPermissions(user.role);
-
-    // 🔥 attach password listener here
-    let form = document.getElementById("change-password-form");
-
-    form.onsubmit = function(e){
-
-        e.preventDefault();
-
-        let current = document.getElementById("current-password").value;
-        let newPass = document.getElementById("new-password").value;
-        let confirm = document.getElementById("confirm-password").value;
-
-        if (newPass !== confirm) {
-            alert("New passwords do not match!");
-            return;
-        }
-
-        if (newPass.length < 6) {
-            alert("Password must be at least 6 characters");
-            return;
-        }
-
-        let users = getUsers();
-        let encryptedCurrent = CryptoJS.SHA256(current).toString();
-
-        if (user.password !== encryptedCurrent) {
-            alert("Current password incorrect!");
-            return;
-        }
-
-        let encryptedNew = CryptoJS.SHA256(newPass).toString();
-
-        users = users.map(u => {
-            if (u.email === user.email) {
-                u.password = encryptedNew;
-                user.password = encryptedNew;
-            }
-            return u;
-        });
-
-        saveUsers(users);
-        setCurrentUser(user);
-
-        alert("Password updated successfully!");
-
-        form.reset();
-    };
+    bindChangePasswordForm();
 }
 
 function renderPermissions(role) {
@@ -1155,53 +1109,49 @@ function renderPermissions(role) {
 
 
 let changePasswordForm = document.getElementById("change-password-form");
+if (changePasswordForm) bindChangePasswordForm();
 
-if (changePasswordForm) {
+function bindChangePasswordForm() {
+    const form = document.getElementById("change-password-form");
+    if (!form) return;
+    if (form.dataset.bound === "true") return;
+    form.dataset.bound = "true";
 
-    changePasswordForm.addEventListener("submit", function(e){
-
+    form.addEventListener("submit", async function (e) {
         e.preventDefault();
-
-        let current = document.getElementById("current-password").value;
-        let newPass = document.getElementById("new-password").value;
-        let confirm = document.getElementById("confirm-password").value;
+        const current = document.getElementById("current-password")?.value || "";
+        const newPass = document.getElementById("new-password")?.value || "";
+        const confirm = document.getElementById("confirm-password")?.value || "";
 
         if (newPass !== confirm) {
             alert("New passwords do not match!");
             return;
         }
-
         if (newPass.length < 6) {
             alert("Password must be at least 6 characters");
             return;
         }
 
-        let users = getUsers();
-        let user = getCurrentUser();
-
-        let encryptedCurrent = CryptoJS.SHA256(current).toString();
-
-        if (user.password !== encryptedCurrent) {
-            alert("Current password incorrect!");
+        const user = getCurrentUser();
+        if (!user?.token) {
+            alert("Please login first.");
+            window.location.replace("login.html");
             return;
         }
 
-        let encryptedNew = CryptoJS.SHA256(newPass).toString();
-
-        users = users.map(u => {
-            if (u.email === user.email) {
-                u.password = encryptedNew;
-                user.password = encryptedNew;
-            }
-            return u;
-        });
-
-        saveUsers(users);
-        setCurrentUser(user);
-
-        alert("Password updated successfully!");
-
-        this.reset();
+        try {
+            const resp = await apiRequest("/api/auth/change-password", {
+                method: "POST",
+                auth: true,
+                body: {
+                    currentPassword: current,
+                    newPassword: newPass
+                }
+            });
+            showToast(resp?.message || "Password updated successfully");
+            this.reset();
+        } catch (err) {
+            alert(`Failed to update password: ${err.message}`);
+        }
     });
-
 }
