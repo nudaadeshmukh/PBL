@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockBank - Blockchain Banking System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-screen">
+    
+    <!-- Landing Page -->
+    <div id="landing-page" class="page">
+        <!-- Navbar -->
+        <nav class="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md border-b border-white/10">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="text-2xl font-bold text-white">🔐 BLAST</div>
+                    
+                    <!-- <div class="hidden md:flex items-center gap-8"> -->
+                        <div class="flex items-center gap-4">
+                            <a href="#features" class="nav-link">Features</a>
+                            <a href="#how-it-works" class="nav-link">How It Works</a>
+                            <a href="#login-page" onclick="showPage('login-page')" class="nav-link">Login</a>
+                            <button onclick="showPage('signup-page')" class="glowing-button">Sign Up</button>
+                        </div>
+                    <!-- </div> -->
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="pt-32 pb-20 px-6">
+            <div class="container mx-auto">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="fade-in">
+                        <h1 class="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                            Secure Banking<br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                                Powered by Blockchain
+                            </span>
+                        </h1>
+                        <p class="text-xl text-white/70 mb-8">
+                            Experience the future of banking with immutable ledger technology, ensuring transparency, security, and trust in every transaction.
+                        </p>
+                        <div class="flex gap-4">
+                            <button onclick="showPage('signup-page')" class="glowing-button">
+                                Get Started →
+                            </button>
+                            <button onclick="showPage('login-page')" class="px-8 py-3 rounded-lg font-medium text-white border-2 border-white/30 hover:border-white/60 transition">
+                                Login
+                            </button>
+                        </div>
+                    </div>
+                    <div class="fade-in">
+                        <img src="https://images.unsplash.com/photo-1631864031824-d636e1dc5292?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxibG9ja2NoYWluJTIwbmV0d29yayUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzcwMDg5OTU3fDA&ixlib=rb-4.1.0&q=80&w=1080" alt="Blockchain" class="rounded-2xl shadow-2xl">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20 px-6">
+            <div class="container mx-auto">
+                <div class="text-center mb-16 fade-in">
+                    <h2 class="text-4xl font-bold text-white mb-4">Why Choose BLAST</h2>
+                    <p class="text-xl text-white/70">Built with cutting-edge blockchain technology for maximum security</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="feature-card">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Secure Transactions</h3>
+                        <p class="text-white/70">End-to-end encrypted transactions with military-grade security protocols</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Immutable Ledger</h3>
+                        <p class="text-white/70">Blockchain-powered ledger that cannot be altered or tampered with</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Tamper Detection</h3>
+                        <p class="text-white/70">Instant detection and alerts for any unauthorized modifications</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Audit Transparency</h3>
+                        <p class="text-white/70">Complete transaction history with real-time audit capabilities</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section id="how-it-works" class="py-20 px-6">
+            <div class="container mx-auto">
+                <div class="text-center mb-16 fade-in">
+                    <h2 class="text-4xl font-bold text-white mb-4">How It Works</h2>
+                    <p class="text-xl text-white/70">Simple, secure, and transparent process</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="step-card">
+                        <div class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-4">01</div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Create Account</h3>
+                        <p class="text-white/70">Register with your credentials</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-4">02</div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Transfer Funds</h3>
+                        <p class="text-white/70">Initiate secure transactions</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-4">03</div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Block Creation</h3>
+                        <p class="text-white/70">Transaction added to blockchain</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-4">04</div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Verify & Audit</h3>
+                        <p class="text-white/70">Real-time verification available</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-12 px-6 border-t border-white/10">
+            <div class="container mx-auto">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div>
+                        <div class="text-2xl font-bold text-white mb-4">🔐 BLAST</div>
+                        <p class="text-white/70">Blockchain-powered banking for the modern world</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white mb-4">Tech Stack</h3>
+                        <ul class="space-y-2 text-white/70">
+                            <li>HTML5 + CSS3</li>
+                            <li>Vanilla JavaScript</li>
+                            <li>SHA-256 Encryption</li>
+                            <li>Tailwind CSS</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white mb-4">Project Info</h3>
+                        <p class="text-white/70">© 2026 BLAST<br>Secure Banking System</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Login Page -->
+    <section id="login-page" class="page hidden">
+        <div class="min-h-screen flex items-center justify-center p-6">
+            <!-- <div class="w-full max-w-6xl grid md:grid-cols-2 gap-8 items-center"> -->
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
+                    
+                    <div class="mb-8 flex justify-between items-center">
+                        
+
+                     <!-- Back Button -->
+                        <button onclick="showPage('landing-page')" class="back-btn">← Back to Home</button>
+
+                    <!-- Logo -->
+                    <a href="#" onclick="showPage('landing-page')" class="text-2xl font-bold text-white"> 🔐 BLAST</a>
+
+                    </div>
+                    <div class="text-center mb-6 login-welcome">
+                        <h2 class="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+                        <p class="text-white/70 text-sm">
+                        "Security is not a product, but a process built on trust and transparency."
+                        </p>
+                    </div>
+                    
+                    <form onsubmit="handleLogin(event)" class="space-y-6">
+                        <div>
+                            <label class="text-white">Email</label>
+                            <input type="email" id="login-email" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="john@example.com">
+                        </div>
+                        <div>
+                            <label class="text-white">Password</label>
+                            <input type="password" id="login-password" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="••••••••">
+                        </div>
+                        <div>
+                            <label class="text-white">Role</label>
+                            <select id="login-role" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                                <option value="">Select your role</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Auditor">Auditor</option>
+                                <option value="User">User</option>
+                            </select>
+                        </div>
+                        <div id="login-error" class="hidden text-red-400 text-sm bg-red-400/10 p-3 rounded-lg"></div>
+                        <button type="submit" class="glowing-button w-full">Login</button>
+                        <div class="text-center space-y-2">
+                            <a href="#" class="text-white/70 hover:text-white text-sm block">Forgot Password?</a>
+                            <div class="text-white/70 text-sm">
+                                Don't have an account? 
+                                <a href="#" onclick="showPage('signup-page')" class="text-blue-400 hover:text-blue-300">Sign Up</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Signup Page -->
+    <div id="signup-page" class="page hidden">
+        <div class="min-h-screen flex items-center justify-center p-6">
+            <div class="w-full max-w-2xl">
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
+                    <div class="mb-8 flex justify-between items-center">
+
+                    <!-- Back Button -->
+                    <button onclick="showPage('landing-page')" class="back-btn">← Back to Home</button>
+                    <!-- Logo -->
+                    <a href="#" onclick="showPage('landing-page')" class="text-2xl font-bold text-white">🔐 BLAST</a>
+                </div>
+                    <form onsubmit="handleSignup(event)" class="space-y-6">
+                        <div>
+                            <label class="text-white">Full Name</label>
+                            <input type="text" id="signup-name" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="John Doe">
+                        </div>
+                        <div>
+                            <label class="text-white">Email</label>
+                            <input type="email" id="signup-email" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="john@example.com">
+                        </div>
+                        <div>
+                            <label class="text-white">Employee / Auditor ID</label>
+                            <input type="text" id="signup-employeeId" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="EMP1234">
+                        </div>
+                        <div>
+                            <label class="text-white">Role</label>
+                            <select id="signup-role" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                                <option value="">Select your role</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Auditor">Auditor</option>
+                                <option value="User">User</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-white">Password</label>
+                            <input type="password" id="signup-password" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="••••••••">
+                        </div>
+                        <div>
+                            <label class="text-white">Confirm Password</label>
+                            <input type="password" id="signup-confirm-password" required class="mt-2 w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50" placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="glowing-button w-full">Register</button>
+                        <div class="text-center text-white/70 text-sm">
+                            Already have an account? 
+                            <a href="#" onclick="showPage('login-page')" class="text-blue-400 hover:text-blue-300">Login</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div id="dashboard-container" class="page hidden">
+        <!-- Sidebar -->
+        <aside class="fixed left-0 top-0 bottom-0 w-64 bg-black/30 backdrop-blur-md border-r border-white/10 p-6 z-40">
+            <div class="text-2xl font-bold text-white mb-8">🔐 BLAST</div>
+            <nav class="space-y-2">
+                <a href="#" onclick="showDashboardPage('dashboard')" class="menu-item" data-page="dashboard">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" onclick="showDashboardPage('add-transaction')" class="menu-item" data-page="add-transaction">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Add Transaction</span>
+                </a>
+                <a href="#" onclick="showDashboardPage('blockchain')" class="menu-item" data-page="blockchain">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                    <span>Blockchain Ledger</span>
+                </a>
+                <a href="#" onclick="showDashboardPage('verify')" class="menu-item" data-page="verify">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    <span>Verify Blockchain</span>
+                </a>
+                <a href="#" onclick="showDashboardPage('audit')" class="menu-item" data-page="audit">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>Audit Reports</span>
+                </a>
+                <a href="#" onclick="showDashboardPage('profile')" class="menu-item" data-page="profile">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span>Profile</span>
+                </a>
+            </nav>
+            <button onclick="handleLogout()" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white/70 hover:bg-red-500/20 hover:text-red-400 transition w-full mt-8">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                <span>Logout</span>
+            </button>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="ml-64">
+            <!-- Top Bar -->
+            <header class="bg-black/20 backdrop-blur-md border-b border-white/10 px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-semibold text-white">Welcome, <span id="user-name"></span></h2>
+                        <p class="text-sm text-white/70">Last login: <span id="user-last-login"></span></p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <div class="text-sm text-white/70">Role</div>
+                            <div class="font-medium text-white" id="user-role"></div>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold" id="user-avatar"></div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Pages -->
+            <main class="p-8">
+                <!-- Dashboard Home -->
+                <div id="dashboard" class="dashboard-page">
+    <div id="stats-grid" class="grid md:grid-cols-4 gap-6 mb-8"></div>
+
+    <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+        <h3 class="text-white text-xl font-semibold mb-4">Recent Blocks</h3>
+        <div id="recent-blocks"></div>
+    </div>
+
+    <div class="text-sm text-white/70 mt-4">
+        Last Backup: <span id="last-backup"></span>
+    </div>
+</div>
+
+                <!-- Add Transaction -->
+                <div id="add-transaction" class="dashboard-page hidden">
+  <div class="max-w-4xl space-y-8">
+
+    <div>
+      <h1 class="section-title">Add Transaction</h1>
+      <p class="section-subtitle">
+        Create a new transaction and add it to the blockchain
+      </p>
+    </div>
+
+    <div class="grid-2">
+
+      <!-- FORM -->
+      <div class="card">
+        <h3 class="card-title">Transaction Details</h3>
+
+        <form id="transaction-form" class="space-y-6">
+
+          <div>
+            <label>Sender Account ID</label>
+            <input type="text" id="sender" placeholder="ACC-12345" required>
+          </div>
+
+          <div>
+            <label>Receiver Account ID</label>
+            <input type="text" id="receiver" placeholder="ACC-67890" required>
+          </div>
+
+          <div>
+            <label>Amount ($)</label>
+            <input type="number" id="amount" step="0.01" placeholder="100.00" required>
+          </div>
+
+          <div>
+            <label>Description</label>
+            <textarea id="description" placeholder="Payment for services..." required></textarea>
+          </div>
+
+          <div class="info-box">
+            <strong>Timestamp:</strong> Auto-generated on submission
+          </div>
+
+          <button type="submit" class="glowing-button w-full">
+            Submit Transaction
+          </button>
+
+        </form>
+      </div>
+
+      <!-- RESULT -->
+      <div id="transaction-result" class="card result-card empty">
+        <div class="empty-state">
+          <div class="hash-icon">#</div>
+          <p>Transaction result will appear here</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+                <!-- Blockchain Ledger -->
+                <div id="blockchain" class="dashboard-page hidden">
+
+  <div class="ledger-container">
+
+    <div>
+      <h1 class="section-title">Blockchain Ledger</h1>
+      <p class="section-subtitle">
+        View all blocks and transactions in the chain
+      </p>
+    </div>
+
+    <div id="ledger-blocks" class="ledger-blocks"></div>
+
+  </div>
+
+</div>
+
+                <!-- Verify Blockchain -->
+                <div id="verify" class="dashboard-page hidden">
+
+  <div class="verify-container">
+
+    <div>
+      <h1 class="section-title">Verify Blockchain</h1>
+      <p class="section-subtitle">Check the integrity of the entire blockchain</p>
+    </div>
+
+    <!-- Action Card -->
+    <div class="card">
+      <div class="verify-header">
+        <div class="shield-icon">🛡</div>
+        <div>
+          <h3>Blockchain Verification</h3>
+          <p>Verify all blocks and check for tampering</p>
+        </div>
+      </div>
+
+      <div class="verify-info">
+        <ul>
+          <li>✔ Verifies hash integrity of each block</li>
+          <li>✔ Checks chain linkage between blocks</li>
+          <li>✔ Detects unauthorized modifications</li>
+          <li>✔ Validates SHA-256 cryptographic integrity</li>
+        </ul>
+      </div>
+
+      <div class="center">
+        <button onclick="handleVerifyBlockchain()" class="glowing-button big-btn">
+          Verify Blockchain
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="verify-loading" class="card hidden loading-card">
+      <div class="spinner"></div>
+      <p>Verifying blockchain integrity...</p>
+    </div>
+
+    <!-- Result -->
+    <div id="verify-result"></div>
+
+  </div>
+</div>
+
+                <!-- Audit Reports -->
+               <div id="audit" class="dashboard-page hidden">
+
+  <div class="audit-container">
+
+    <div>
+      <h1 class="section-title">Audit & Reports</h1>
+      <p class="section-subtitle">Filter and export transaction history</p>
+    </div>
+
+    <!-- FILTER CARD -->
+    <div class="card">
+      <h3 class="card-title">Filter Transactions</h3>
+
+      <div class="audit-grid">
+
+        <div>
+          <label>Date From</label>
+          <input type="date" id="filter-dateFrom">
+        </div>
+
+        <div>
+          <label>Date To</label>
+          <input type="date" id="filter-dateTo">
+        </div>
+
+        <div>
+          <label>Account ID</label>
+          <input type="text" id="filter-account" placeholder="ACC-12345">
+        </div>
+
+        <div>
+          <label>Min Amount ($)</label>
+          <input type="number" id="filter-minAmount" step="0.01">
+        </div>
+
+        <div>
+          <label>Max Amount ($)</label>
+          <input type="number" id="filter-maxAmount" step="0.01">
+        </div>
+
+        <div class="btn-wrapper">
+          <button onclick="generateAuditReport()" class="glowing-button">
+            Download CSV
+          </button>
+        </div>
+
+      </div>
+
+      <div class="audit-count">
+        Showing <span id="record-count">0</span> records
+      </div>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="card">
+      <h3 class="card-title">Transaction History</h3>
+
+      <div class="table-wrapper">
+        <table id="audit-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Sender</th>
+              <th>Receiver</th>
+              <th>Amount</th>
+              <th>Block</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div id="no-records" class="no-records hidden">
+        No transactions found matching your filters
+      </div>
+    </div>
+
+    <!-- SUMMARY CARD -->
+    <div id="summary-card" class="card hidden">
+      <h3 class="card-title">Summary Statistics</h3>
+
+      <div class="summary-grid">
+        <div>
+          <small>Total Transactions</small>
+          <h2 id="sum-total"></h2>
+        </div>
+        <div>
+          <small>Total Volume</small>
+          <h2 id="sum-volume" class="green"></h2>
+        </div>
+        <div>
+          <small>Average Amount</small>
+          <h2 id="sum-average" class="blue"></h2>
+        </div>
+        <div>
+          <small>Blocks Involved</small>
+          <h2 id="sum-blocks" class="purple"></h2>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+                <!-- Profile -->
+                <div id="profile" class="dashboard-page hidden">
+
+  <div class="profile-container">
+
+    <div>
+      <h1 class="section-title">Profile</h1>
+      <p class="section-subtitle">Manage your account settings</p>
+    </div>
+
+    <div class="profile-grid">
+
+      <!-- Profile Info -->
+      <div class="card">
+        <div class="profile-header">
+          <div id="profile-avatar" class="avatar"></div>
+          <div>
+            <h3 id="profile-name"></h3>
+            <p id="profile-role" class="role-text"></p>
+          </div>
+        </div>
+
+        <div class="profile-info">
+          <p><strong>Email:</strong> <span id="profile-email"></span></p>
+          <p><strong>Employee ID:</strong> <span id="profile-empid"></span></p>
+          <p><strong>Last Login:</strong> <span id="profile-lastlogin"></span></p>
+        </div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="card">
+        <h3>Change Password</h3>
+        <form id="change-password-form">
+
+          <input type="password" id="current-password" placeholder="Current Password" required>
+          <input type="password" id="new-password" placeholder="New Password" required>
+          <input type="password" id="confirm-password" placeholder="Confirm New Password" required>
+
+          <button type="submit" class="glowing-button w-full">
+            Update Password
+          </button>
+
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Account Actions -->
+    <div class="card">
+      <h3>Account Actions</h3>
+
+      <div class="logout-section">
+        <button onclick="handleLogout()" class="logout-btn">
+          Logout
+        </button>
+      </div>
+
+      <div class="security-box">
+        <strong>Security Notice:</strong>
+        Your data is protected using SHA-256 encryption.
+      </div>
+    </div>
+
+    <!-- Role Permissions -->
+    <div class="card">
+      <h3>Role Permissions</h3>
+      <ul id="role-permissions" class="permissions-list"></ul>
+    </div>
+
+  </div>
+</div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 shadow-2xl hidden z-50 max-w-sm">
+        <div id="toast-message" class="text-white"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
